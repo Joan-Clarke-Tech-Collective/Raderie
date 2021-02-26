@@ -1,3 +1,5 @@
 <resources>
   <string name="app_name">ValuesRank</string>
+  <string name="startGame">Start Game</string>
+    <string name="results">results</string>
 </resources>

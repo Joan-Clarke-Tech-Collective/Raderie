@@ -2,11 +2,10 @@ package me.paxana.valuesrank
 
 class ValueRepo {
 
-    fun freshDeck(): List<() -> HumanValue> {
-        val newDeck = humanValueList.mapIndexed { index, s -> {
-            HumanValue(index, s, 0, 0, 0, 0, 0.00, 0.00)
-        }  }
-        return newDeck
+    fun freshDeck(): List<HumanValue> {
+        return humanValueList.mapIndexed { index, s ->
+                HumanValue(index, s, 0, 0, 0, 0, 0, 0.00)
+        }
     }
 
     val humanValueList = arrayOf(
