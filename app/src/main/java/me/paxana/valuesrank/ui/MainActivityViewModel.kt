@@ -1,6 +1,10 @@
 package me.paxana.valuesrank.ui
 
+import android.app.AlertDialog
 import android.app.Application
+import android.content.Context
+import android.content.DialogInterface
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,14 +15,15 @@ import me.paxana.valuesrank.ValueRepo
 import me.paxana.valuesrank.adapters.ResultsRecyclerAdapter
 import me.paxana.valuesrank.utils.RankingCalculator
 
-class MainActivityViewModel(): ViewModel() {
-    val repo = ValueRepo()
-    val deck = MutableLiveData<List<HumanValue>>()
+class MainActivityViewModel(application: Application): AndroidViewModel(application) {
+    private val repo = ValueRepo()
+    val deck = MutableLiveData<MutableList<HumanValue>>()
     val option1 = MutableLiveData<HumanValue>()
     val option2 = MutableLiveData<HumanValue>()
     var higher = true
     val gameOn = MutableLiveData(false)
     val adapter = ResultsRecyclerAdapter(this, R.layout.result_item)
+    val dialog = MutableLiveData<Pair<HumanValue, HumanValue>>()
 
     fun startGame() {
         gameOn.value = true
@@ -43,38 +48,80 @@ class MainActivityViewModel(): ViewModel() {
             Logger.d("Value 1: %s, Value 2: %s", option1.value!!.name, option2.value!!.name )
         }
     }
-    fun winner(outcome: OUTCOME) {
-        var won: HumanValue? = null
-        var lost: HumanValue? = null
-        if (outcome == OUTCOME.TOP) {
-            won = option1.value
-            lost = option2.value
-        }
-        else if (outcome == OUTCOME.BOTTOM) {
-            won = option2.value
-            lost = option1.value
-        }
-        Logger.d("%s is the winner. %s is the loser", won!!.name, lost!!.name)
+    fun decided(outcome: OUTCOME) {
 
-        deck.value!!.find { it.id == won.id }.let {
-            it!!.gamesPlayed++
-            it.gamesWon++
-            it.rating = RankingCalculator().calculateNewRanking(it, lost, "+")
-        }
-        deck.value!!.find { it.id == lost.id }.let {
-            it!!.gamesPlayed++
-            it.gamesLost++
-            it.rating = RankingCalculator().calculateNewRanking(it, won, "-")
+        when (outcome) {
+            OUTCOME.TOP -> {
+                adjustRankings(option1.value!!, option2.value!!, false)
+            }
+            OUTCOME.BOTTOM -> {
+                adjustRankings(option2.value!!, option1.value!!, false)
+            }
+            OUTCOME.TIE -> {
+                adjustRankings(option1.value!!, option2.value!!, true )
+            }
+            OUTCOME.SYNONYMS -> {
+                dialog.value = Pair(option1.value!!, option2.value!!)
+            }
         }
 
-        pullTwo()
         Logger.d(deck.value!!.sortedBy { it.rating }.asReversed())
 
+    }
+    private fun adjustRankings(winner: HumanValue, loser: HumanValue, tie: Boolean) {
+        val newRankingsMap = RankingCalculator().calculateNewRanking(winner, loser, tie)
+        newRankingsMap.forEach { entry ->
+            deck.value!!.find {it.id == entry.key.id}.let {
+                it!!.gamesPlayed++
+                it.rating = entry.value
+                if (it.id == winner.id && !tie) {
+                    it.gamesWon++
+                }
+                else if (it.id == loser.id && !tie) {
+                    it.gamesLost++
+                }
+            }
+        }
+        pullTwo()
+    }
+    private fun removeFromDeck(hv: HumanValue): Boolean {
+        return deck.value!!.remove(hv)
+    }
+    fun createAlertDialog(hv1: HumanValue, hv2: HumanValue, context: Context): AlertDialog {
+        val dialog = AlertDialog.Builder(context).create()
+        dialog.setTitle("These Words Are Synonyms...")
+        dialog.setMessage("Which Is The Better Word?")
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, hv1.name) { _, _ ->
+            val success = removeFromDeck(hv2)
+            if (!success) {
+                Toast.makeText(getApplication(), "Item Not Found", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                Toast.makeText(getApplication(), "Deleted: " + hv2.name, Toast.LENGTH_SHORT).show()
+            }
+            pullTwo()
+        }
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, hv2.name) { _, _ ->
+            val success = removeFromDeck(hv1)
+            if (!success) {
+                Toast.makeText(getApplication(), "Item Not Found", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                Toast.makeText(getApplication(), "Deleted: " + hv1.name, Toast.LENGTH_SHORT).show()
+
+            }
+            pullTwo()
+        }
+        dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Cancel") { d, which ->
+            d.cancel()
+        }
+        return dialog
     }
 }
 
 enum class OUTCOME {
     TOP,
     BOTTOM,
-    TIE
+    TIE,
+    SYNONYMS
 }
