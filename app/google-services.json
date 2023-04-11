@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1089061147621",
+    "project_id": "values-rank",
+    "storage_bucket": "values-rank.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089061147621:android:f158fe81acdbd1ae70950c",
+        "android_client_info": {
+          "package_name": "org.clarkecollective.raderie"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1089061147621-1bnlldncq18b4rjgccil8g3oadrs7ejn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.clarkecollective.raderie",
+            "certificate_hash": "04f0274d0c0cd3eb3e2b121d3b644737c855fbe7"
+          }
+        },
+        {
+          "client_id": "1089061147621-irjr8thd0c8ocj0hc4m0sq96qbgmo100.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP73W_DM797QvMayo7tSiEwDfSbKfJQtA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1089061147621-irjr8thd0c8ocj0hc4m0sq96qbgmo100.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
