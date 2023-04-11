@@ -4,52 +4,85 @@
   xmlns:tools="http://schemas.android.com/tools">
   <data>
     <import type="android.view.View"/>
-    <import type="me.paxana.valuesrank.ui.OUTCOME"/>
+    <import type="org.clarkecollective.raderie.ui.main.OUTCOME"/>
     <variable
       name="viewModel"
-      type="me.paxana.valuesrank.ui.MainActivityViewModel" />
+      type="org.clarkecollective.raderie.ui.main.MainActivityViewModel" />
   </data>
+
   <androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  tools:context=".ui.MainActivity">
-    <androidx.drawerlayout.widget.DrawerLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:openDrawer="start">
-      <androidx.recyclerview.widget.RecyclerView
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"/>
-
-    </androidx.drawerlayout.widget.DrawerLayout>
-
-    <LinearLayout
-      android:id="@+id/optionsLayout"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:orientation="vertical"
-      android:visibility="visible"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent">
+      android:background="#734f96"
+      tools:context=".ui.main.MainActivity">
 
-      <Button
-        android:id="@+id/option1"
+    <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:onClick="@{() -> viewModel.winner(OUTCOME.TOP)}"
-        android:text="@{viewModel.option1.name}" />
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/option2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/option1">
 
       <Button
-        android:id="@+id/option2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:onClick="@{() -> viewModel.winner(OUTCOME.BOTTOM)}"
-        android:text="@{viewModel.option2.name}" />
+          android:id="@+id/tie"
+          style="@style/Widget.AppCompat.Button.Borderless"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_weight="1"
+          android:background="#00FFFFFF"
+          android:text="Tie"
+          android:clickable="@{viewModel.gameOn}"
+          android:onClick="@{() -> viewModel.decided(OUTCOME.TIE)}"
+          android:textColor="#000000" />
+
+      <Button
+          android:id="@+id/synonyms"
+          style="@style/Widget.AppCompat.Button.Borderless"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_weight="1"
+          android:clickable="@{viewModel.gameOn}"
+          android:onClick="@{() -> viewModel.decided(OUTCOME.SYNONYMS)}"
+          android:text="Synonyms"
+          android:textColor="#000000"
+          app:backgroundTint="#00FFFFFF" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/option1"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textColor="#000000"
+        android:clickable="@{viewModel.gameOn}"
+        android:onClick="@{() -> viewModel.decided(OUTCOME.TOP)}"
+        android:text="@{viewModel.option1.name}"
+        app:backgroundTint="#00FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/option2"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textColor="#000000"
+        android:clickable="@{viewModel.gameOn}"
+        android:onClick="@{() -> viewModel.decided(OUTCOME.BOTTOM)}"
+        android:text="@{viewModel.option2.name}"
+        app:backgroundTint="#00FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

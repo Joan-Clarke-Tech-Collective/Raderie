@@ -6,4 +6,7 @@
         android:id="@+id/resultsMenuItem"
         android:title="@string/results"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/sharingButton"
+        android:title="@string/share" />
 </menu>
