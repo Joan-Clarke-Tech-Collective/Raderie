@@ -39,6 +39,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
   private val updatedLast = MutableLiveData<Long>()
   var lastUpdatedRemote = 0L
   private var lastUpdatedLocal = 0L
+  val menuClicked = MutableLiveData<MAIN_MENU>()
 
   private val roomDb = Room.databaseBuilder(
     getApplication<Application>().applicationContext,
@@ -155,7 +156,9 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     }
   }
 
-
+  fun menuClicked(whichClicked: MAIN_MENU) {
+    menuClicked.value = whichClicked
+  }
 
   private fun getDecksAndCompareTimes(): Completable {
     val time = System.currentTimeMillis()
@@ -431,4 +434,10 @@ enum class OUTCOME {
   BOTTOM,
   TIE,
   SYNONYMS
+}
+
+enum class MAIN_MENU {
+  RESULT,
+  SHARE
+
 }

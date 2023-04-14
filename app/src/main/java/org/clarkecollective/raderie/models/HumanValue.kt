@@ -15,9 +15,7 @@ data class HumanValue(
     @ColumnInfo(name = "rating") var rating: Int = 0,
     @ColumnInfo(name = "k_factor") var kFactor: Double = 0.0)
     :java.io.Serializable {
-
     companion object {
         private const val serialVersionUID = 20221128L
     }
-
 }

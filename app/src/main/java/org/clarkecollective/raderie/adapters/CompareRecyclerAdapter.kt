@@ -11,6 +11,7 @@ import com.orhanobut.logger.Logger
 import org.clarkecollective.raderie.BR
 import org.clarkecollective.raderie.models.HumanValue
 import org.clarkecollective.raderie.ui.compare.CompareViewModel
+import org.clarkecollective.raderie.ui.compare.Comparison
 import org.clarkecollective.raderie.ui.results.ResultsActivityViewModel
 
 class CompareRecyclerAdapter(private val vM: CompareViewModel, @LayoutRes private val layoutRes: Int): RecyclerView.Adapter<CompareRecyclerAdapter.CompareViewHolder>() {
@@ -26,8 +27,8 @@ class CompareRecyclerAdapter(private val vM: CompareViewModel, @LayoutRes privat
     holder.bind(getObjFromPosition(position), position)
   }
 
-  private fun getObjFromPosition(position: Int): HumanValue? {
-    return vM.friendDeckLV.value?.sortedBy { it.rating }?.asReversed()?.get(position)
+  private fun getObjFromPosition(position: Int): Comparison {
+    return vM.compareLV.value?.get(position) ?: Comparison(-1, HumanValue(), HumanValue())
   }
 
   override fun getItemCount(): Int {
@@ -43,10 +44,9 @@ class CompareRecyclerAdapter(private val vM: CompareViewModel, @LayoutRes privat
   }
 
   class CompareViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
-    fun bind(humanValue: HumanValue?, position: Int) {
-      Log.d("VR", "Binding Compare View Holder: $humanValue")
-      binding.setVariable(BR.humanValue, humanValue)
-      binding.setVariable(BR.position, (position + 1).toString())
+    fun bind(comparison: Comparison, position: Int) {
+      Log.d("VR", "Binding Comparison: $comparison")
+      binding.setVariable(BR.comparison, comparison)
     }
   }
 }

@@ -19,15 +19,16 @@ import org.clarkecollective.raderie.log
 import org.clarkecollective.raderie.models.HumanValue
 
 class CompareViewModel(app: Application): AndroidViewModel(app) {
-  val adapter = CompareRecyclerAdapter(this, R.layout.result_item)
+  val adapter = CompareRecyclerAdapter(this, R.layout.compare_item)
   val friendDeck = mutableListOf<HumanValue?>()
   val friendDeckLV = MutableLiveData<MutableList<HumanValue>>()
   val myDeckLV = MutableLiveData<MutableList<HumanValue>>()
   val friendNameLV = MutableLiveData<String>()
-  val compositeDisposable = CompositeDisposable()
-  val firbaseAPI: FirebaseAPI = FirebaseAPI(app.applicationContext)
+  private val compositeDisposable = CompositeDisposable()
+  private val firebaseAPI: FirebaseAPI = FirebaseAPI(app.applicationContext)
   val commonality = MutableLiveData<List<HumanValue>>()
   val compareTotal = MutableLiveData<String>()
+  val compareLV = MutableLiveData<List<Comparison>>()
 
 
   private val roomDb = Room.databaseBuilder(
@@ -40,7 +41,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
   fun startComparison(friendUUID: String, friendName: String) {
     Logger.d("Starting comparison")
     friendNameLV.value = friendName
-    fetchFriend(friendUUID, friendName)
+    fetch(friendUUID, friendName)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribeWith(object : DisposableSingleObserver<Map<WHOSE, List<HumanValue>>>() {
@@ -51,9 +52,11 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
           Logger.d("Friend deck size: ${friendDeckLV.value!!.size}")
           val myDeck = t[WHOSE.ME] as MutableList<HumanValue>
           myDeckLV.value = myDeck
+          val commonality = findCommonality()
+          compareLV.value = commonality
           adapter.notifyItemRangeInserted(0, friendDeck.size)
-          Logger.d("Commonality: %s", findCommonality())
-          compareTotal.value = "These users have " + findCommonality().size + " values in common"
+          Logger.d("Commonality: %s", commonality)
+          compareTotal.value = "These users have " + commonality.size.toString() + " values in common"
         }
 
         override fun onError(e: Throwable) {
@@ -62,15 +65,19 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
       }).addTo(compositeDisposable)
   }
 
-  fun findCommonality(): List<Int> {
+  fun findCommonality(): List<Comparison> {
     Logger.d("Finding commonality")
     val friendDeck = friendDeckLV.value!!.filter { it.gamesPlayed > 0 }
     val myDeck = myDeckLV.value!!.filter { it.gamesPlayed > 0 }
 
-    return friendDeck.filter { myDeck.contains(it) }.map { it.id }
+    val commonIDs = friendDeck.filter { myDeck.contains(it) }.map { it.id }
+    val result = commonIDs.map { sharedID ->
+      return@map Comparison(sharedID, friendDeck.find { it.id == sharedID }!!, myDeck.find { it.id == sharedID }!!)
+    }
+    return result
   }
 
-  private fun fetchFriend(friendUUID: String, friendName: String) : Single<Map<WHOSE, List<HumanValue>>> {
+  private fun fetch(friendUUID: String, friendName: String) : Single<Map<WHOSE, List<HumanValue>>> {
     Logger.d("Fetching friend")
     return Single.zip(
       fetchYou().subscribeOn(Schedulers.io()),
@@ -84,7 +91,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
   private fun fetchJustFriend(friendUUID: String, friendName: String) : Single<List<HumanValue>> {
     Logger.d("Fetching friend")
     return Single.create {
-      firbaseAPI.getFriendDeck(friendUUID).subscribeOn(Schedulers.io())
+      firebaseAPI.getFriendDeck(friendUUID).subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribeWith(object : DisposableSingleObserver<List<HumanValue>>() {
           override fun onSuccess(t: List<HumanValue>) {
@@ -119,6 +126,10 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
        }
   }
 
+  fun findLargestAndSmallestDeltas(compareLists: Map<WHOSE, List<HumanValue>>, similarities: List<Int>) {
+
+  }
+
   override fun onCleared() {
     super.onCleared()
     compositeDisposable.clear()
@@ -128,3 +139,5 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
 enum class WHOSE {
   ME, FRIEND
 }
+
+data class Comparison(val id: Int, val friend: HumanValue, val me: HumanValue)

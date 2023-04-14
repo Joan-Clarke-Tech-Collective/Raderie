@@ -32,14 +32,12 @@ import org.clarkecollective.raderie.ui.share.ShareActivity
 
 class MainActivity : AppCompatActivity() {
   private val mainActivityViewModel: MainActivityViewModel by viewModels()
-  private lateinit var auth: FirebaseAuth
   private lateinit var valueDao: ValueDao
   private lateinit var firebaseAPI: FirebaseAPI
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     Logger.addLogAdapter(AndroidLogAdapter())
-    auth = Firebase.auth
     firebaseAPI = FirebaseAPI(applicationContext)
 
     valueDao = Room.databaseBuilder(applicationContext, MyValuesDatabase::class.java, "test-db")
@@ -66,8 +64,18 @@ class MainActivity : AppCompatActivity() {
       }
       )
     setupBinding()
+    setupObservers()
     mainActivityViewModel.dialog.observe(this) {
       createAlertDialog(it.first, it.second).show()
+    }
+  }
+
+  private fun setupObservers() {
+    mainActivityViewModel.menuClicked.observe(this) {
+      when (it) {
+        MAIN_MENU.SHARE -> startSharingActivity()
+        MAIN_MENU.RESULT -> startResultsActivity()
+      }
     }
   }
 
