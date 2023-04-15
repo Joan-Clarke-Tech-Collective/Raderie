@@ -1,6 +1,8 @@
 package org.clarkecollective.raderie.ui.compare
 
 import android.app.Application
+import android.graphics.Color
+import androidx.databinding.ObservableField
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
@@ -17,19 +19,20 @@ import org.clarkecollective.raderie.api.FirebaseAPI
 import org.clarkecollective.raderie.databases.MyValuesDatabase
 import org.clarkecollective.raderie.log
 import org.clarkecollective.raderie.models.HumanValue
+import kotlin.math.max
+import kotlin.math.min
 
 class CompareViewModel(app: Application): AndroidViewModel(app) {
   val adapter = CompareRecyclerAdapter(this, R.layout.compare_item)
   val friendDeck = mutableListOf<HumanValue?>()
-  val friendDeckLV = MutableLiveData<MutableList<HumanValue>>()
-  val myDeckLV = MutableLiveData<MutableList<HumanValue>>()
+  val friendDeckLV = MutableLiveData<List<HumanValue>>()
+  val myDeckLV = MutableLiveData<List<HumanValue>>()
   val friendNameLV = MutableLiveData<String>()
   private val compositeDisposable = CompositeDisposable()
   private val firebaseAPI: FirebaseAPI = FirebaseAPI(app.applicationContext)
   val commonality = MutableLiveData<List<HumanValue>>()
   val compareTotal = MutableLiveData<String>()
   val compareLV = MutableLiveData<List<Comparison>>()
-
 
   private val roomDb = Room.databaseBuilder(
     getApplication<Application>().applicationContext,
@@ -52,10 +55,10 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
           Logger.d("Friend deck size: ${friendDeckLV.value!!.size}")
           val myDeck = t[WHOSE.ME] as MutableList<HumanValue>
           myDeckLV.value = myDeck
-          val commonality = findCommonality()
-          compareLV.value = commonality
+          val commonality = findCommonality(t)
+          compareLV.value = commonality.sortedBy { it.getDelta() }
           adapter.notifyItemRangeInserted(0, friendDeck.size)
-          Logger.d("Commonality: %s", commonality)
+          Logger.d("Commonality size: %s", commonality.size)
           compareTotal.value = "These users have " + commonality.size.toString() + " values in common"
         }
 
@@ -65,12 +68,18 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
       }).addTo(compositeDisposable)
   }
 
-  fun findCommonality(): List<Comparison> {
+  fun findCommonality(mapOfBoth: Map<WHOSE, List<HumanValue>>): List<Comparison> {
     Logger.d("Finding commonality")
-    val friendDeck = friendDeckLV.value!!.filter { it.gamesPlayed > 0 }
-    val myDeck = myDeckLV.value!!.filter { it.gamesPlayed > 0 }
 
-    val commonIDs = friendDeck.filter { myDeck.contains(it) }.map { it.id }
+    val friendDeck = mapOfBoth[WHOSE.FRIEND]!!
+    val myDeck = mapOfBoth[WHOSE.ME]!!
+
+    Logger.d("Friend deck size: %s, My deck size: %s", friendDeck.size, myDeck.size)
+
+    val commonIDs = friendDeck.filter { f1 -> myDeck.filter { f2 -> f1.id == f2.id }.size == 1 }.map { it.id }
+    commonIDs.forEach { commonID ->
+      Logger.d("ID: %s, Friend score: %s, My deck: %s", commonID, friendDeck.find { finder -> finder.id == commonID }?.rating, myDeck.find { finder -> finder.id == commonID }?.rating)
+    }
     val result = commonIDs.map { sharedID ->
       return@map Comparison(sharedID, friendDeck.find { it.id == sharedID }!!, myDeck.find { it.id == sharedID }!!)
     }
@@ -83,8 +92,10 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
       fetchYou().subscribeOn(Schedulers.io()),
       fetchJustFriend(friendUUID, friendName).subscribeOn(Schedulers.io())
     ) { me, friend ->
-      Logger.d("Me: $me, friend: $friend")
-      mapOf(WHOSE.ME to me, WHOSE.FRIEND to friend)
+      val meFiltered = me.filter { it.gamesPlayed > 0 }
+      val friendFiltered = friend.filter { it.gamesPlayed > 0 }
+      Logger.d("Me filtered: $meFiltered, friend filtered: $friendFiltered")
+      mapOf(WHOSE.ME to meFiltered, WHOSE.FRIEND to friendFiltered)
     }
   }
 
@@ -115,6 +126,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
            .subscribeWith(object : DisposableSingleObserver<List<HumanValue>>() {
              override fun onSuccess(t: List<HumanValue>) {
                Logger.d("You: $t")
+               myDeckLV.value = t as List<HumanValue>
                it.onSuccess(t)
              }
 
@@ -140,4 +152,8 @@ enum class WHOSE {
   ME, FRIEND
 }
 
-data class Comparison(val id: Int, val friend: HumanValue, val me: HumanValue)
+class Comparison(val id: Int, val friend: HumanValue, val me: HumanValue) {
+  fun getDelta(): Int { return (max(friend.rating, me.rating) - min(friend.rating, me.rating)) }
+  fun getColorDelta() = Color.argb(255, (255 * (getDelta() / 100)), (255 * (100 - getDelta()) / 100), 0)
+
+}

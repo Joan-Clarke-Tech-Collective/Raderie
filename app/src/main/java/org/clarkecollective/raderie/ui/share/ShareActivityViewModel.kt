@@ -3,6 +3,7 @@ package org.clarkecollective.raderie.ui.share
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.databinding.ObservableField
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.ktx.auth
@@ -10,23 +11,36 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.orhanobut.logger.Logger
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.addTo
+import io.reactivex.rxjava3.observers.DisposableCompletableObserver
+import io.reactivex.rxjava3.observers.DisposableSingleObserver
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.clarkecollective.raderie.R
+import org.clarkecollective.raderie.api.FirebaseAPI
+import org.clarkecollective.raderie.log
 import org.clarkecollective.raderie.models.Friend
 
 class ShareActivityViewModel(application: Application): AndroidViewModel(application) {
   val nameLiveData = MutableLiveData<String>()
   val nameExists = MutableLiveData<Boolean>()
+  val firebaseAPI = FirebaseAPI(application)
   private val db = Firebase.firestore
   val auth = Firebase.auth
+
   //TODO don't make so many calls to auth
-  private val usersRef = db.collection("usies")
+  private val usersRef = db.collection("users")
   private val docRef = usersRef.document(auth.currentUser?.uid.toString())
   private val friendRef = docRef.collection("friendList")
-  private val sharedPreferences: SharedPreferences = getApplication<Application>().getSharedPreferences("user-data", Context.MODE_PRIVATE)
+  private val sharedPreferences: SharedPreferences =
+    getApplication<Application>().getSharedPreferences("user-data", Context.MODE_PRIVATE)
   private val friendList = ArrayList<Friend?>()
   val friendListLD = MutableLiveData<ArrayList<Friend?>>()
   val clickedFriend = MutableLiveData<Friend>()
-  val shareListener = MutableLiveData(0)
+  val shareListener = MutableLiveData<ShareButtons>()
+  val selfName = ObservableField("")
+  private val compositeDisposable = CompositeDisposable()
 
   private val clickInterface: FriendClickInterface = object : FriendClickInterface {
     override fun onFriendClicked(friend: Friend) {
@@ -38,73 +52,117 @@ class ShareActivityViewModel(application: Application): AndroidViewModel(applica
 
   fun fetchName() {
     if (sharedPreferences.contains(getApplication<Application>().getString(R.string.choseNameKey))) {
-      nameLiveData.value = sharedPreferences.getString(getApplication<Application>().getString(R.string.choseNameKey), null)
+      nameLiveData.value = sharedPreferences.getString(
+        getApplication<Application>().getString(R.string.choseNameKey),
+        null
+      )
       nameExists.value = true
-      }
-    else nameExists.value = false
+    } else nameExists.value = false
 
     fetchFriends()
   }
 
   private fun fetchFriends() {
-    friendRef.get().addOnCompleteListener { task ->
-      if (task.isSuccessful) {
-        friendList.addAll(task.result.documents.map {
-          it.toObject(Friend::class.java)
-        }.toList())
+    firebaseAPI.getFriendsList().subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribeWith(object : DisposableSingleObserver<List<Friend>>() {
+        override fun onSuccess(t: List<Friend>) {
+          Logger.d("Friends: $t")
+          friendList.addAll(t)
+          friendListLD.value = friendList
+          friendsAdapter.notifyItemRangeInserted(0, friendList.size)
+        }
 
-        friendListLD.value = friendList
-        friendsAdapter.notifyItemRangeInserted(0, friendList.size)
-      }
-      else {
-        task.exception!!.localizedMessage?.let { Logger.e(it) }
-      }
-    }
+        override fun onError(e: Throwable) {
+          e.log()
+        }
+
+      }).addTo(compositeDisposable)
   }
 
-  fun submitName(name: String) {
-    val map = mapOf(Pair(getApplication<Application>().getString(R.string.choseNameKey), name))
-    with (sharedPreferences.edit()) {
-      putString(getApplication<Application>().getString(R.string.choseNameKey), name)
+  fun onClickSubmitName() {
+    val map =
+      mapOf(Pair(getApplication<Application>().getString(R.string.choseNameKey), selfName.get()))
+    with(sharedPreferences.edit()) {
+      putString(getApplication<Application>().getString(R.string.choseNameKey), selfName.get())
       apply()
     }
-
+// Move this to API
     docRef.set(map).addOnCompleteListener {
-      nameLiveData.value = name
+      nameLiveData.value = selfName.get()
       nameExists.value = true
     }
   }
 
-  fun wipeUser() {
-    val map = mapOf(Pair(getApplication<Application>().getString(R.string.choseNameKey), FieldValue.delete()))
-    with (sharedPreferences.edit()) {
+  fun onShareClicked() {
+    shareListener.value = ShareButtons.SHARE
+  }
+
+  fun onWipeUserClicked() {
+    val map = mapOf(
+      Pair(
+        getApplication<Application>().getString(R.string.choseNameKey),
+        FieldValue.delete()
+      )
+    )
+    with(sharedPreferences.edit()) {
       remove(getApplication<Application>().getString(R.string.choseNameKey)).commit()
     }
-   docRef.update(map)
+    docRef.update(map)
     nameExists.value = false
   }
 
   fun addFriend(uuid: String) {
-    Logger.d("Adding friend")
-    usersRef.document(uuid).get().addOnCompleteListener { task ->
-      if (task.isSuccessful) {
-        Logger.d("Task result = ${task.result}")
-        val document = task.result
-        if (document != null) {
-          document.reference.collection("deck").whereGreaterThan("gamesPlayed", 0) .get().addOnCompleteListener { greaterThanTask ->
-            Logger.d("It found (deck): $task.result.size()} items large")
-            val newFriend = Friend(uuid, document["userChosenName"].toString(), greaterThanTask.result.size() )
-            Logger.d(newFriend)
-            friendRef.document(uuid).set(newFriend)
-          }
+    Logger.d("Adding Friend")
+    firebaseAPI.addFriend(uuid).subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribeWith(object : DisposableSingleObserver<Friend>() {
+        override fun onSuccess(t: Friend) {
+          Logger.d("Friend: $t")
+          friendList.add(t)
+          friendListLD.value = friendList
+          friendsAdapter.notifyItemRangeInserted(friendList.size - 1, 1)
         }
-        else {
-          Logger.d("Collection is null")
+
+        override fun onError(e: Throwable) {
+          e.log()
         }
-      }
-      else {
-        Logger.e("Document get failed.  ${task.exception}")
-      }
-    }
+
+      }).addTo(compositeDisposable)
   }
+
+  override fun onCleared() {
+    super.onCleared()
+    compositeDisposable.clear()
+  }
+}
+
+//
+//  fun addFriend(uuid: String) {
+//    Logger.d("Adding friend")
+//    usersRef.document(uuid).get().addOnCompleteListener { task ->
+//      if (task.isSuccessful) {
+//        Logger.d("Task result = ${task.result}")
+//        val document = task.result
+//        if (document != null) {
+//          document.reference.collection("deck").whereGreaterThan("gamesPlayed", 0) .get().addOnCompleteListener { greaterThanTask ->
+//            Logger.d("It found (deck): ${greaterThanTask.result.size()} items large")
+//            val newFriend = Friend(uuid, document["userChosenName"].toString(), greaterThanTask.result.size() )
+//            Logger.d(newFriend)
+//            friendRef.document(uuid).set(newFriend)
+//          }
+//        }
+//        else {
+//          Logger.d("Collection is null")
+//        }
+//      }
+//      else {
+//        Logger.e("Document get failed.  ${task.exception}")
+//      }
+//    }
+//  }
+//}
+
+enum class ShareButtons {
+  SHARE, WIPEDATA
 }

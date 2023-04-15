@@ -106,14 +106,13 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun startSharingActivity(){
-    val intent = Intent(this, ShareActivity::class.java)
+    val intent = ShareActivity.newIntent(this)
     startActivity(intent)
   }
 
   private fun startResultsActivity() {
-    val intent = Intent(this, ResultsActivity::class.java)
     val arrayDeck = mainActivityViewModel.deck.value?.let { ArrayList<HumanValue>(it) }
-    intent.putExtra(getString(R.string.deckExtra), arrayDeck)
+    val intent = arrayDeck?.let { ResultsActivity.newIntent(this, it) }
     startActivity(intent)
   }
 

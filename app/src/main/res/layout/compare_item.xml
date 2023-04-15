@@ -10,14 +10,15 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/compareHVTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
             android:text="@{comparison.friend.name}"
+            android:textAlignment="center"
+            android:textColor="@{comparison.colorDelta}"
             app:layout_constraintEnd_toStartOf="@+id/friendCompareScoreTV"
             app:layout_constraintStart_toEndOf="@+id/meCompareScoreTV"
             app:layout_constraintTop_toTopOf="parent"

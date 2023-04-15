@@ -1,6 +1,7 @@
 package org.clarkecollective.raderie.ui.share
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -22,18 +23,19 @@ import org.clarkecollective.raderie.ui.compare.CompareActivity
 
 class ShareActivity : AppCompatActivity() {
 
+  companion object {
+    fun newIntent(context: Context): Intent {
+      return Intent(context, ShareActivity::class.java)
+
+    }
+  }
+
   private val viewModel: ShareActivityViewModel by viewModels()
   private lateinit var welcomeTV: TextView
   private lateinit var submitButton: Button
   private lateinit var personNameET: EditText
   private lateinit var wipeUserButton: Button
   private lateinit var shareButton: Button
-
-  private val shareClickListener = object : ShareClickListener{
-    override fun onShareClicked() {
-      sendShareText()
-    }
-  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -58,7 +60,7 @@ class ShareActivity : AppCompatActivity() {
   }
 
   private fun setObservers() {
-    buttonListener()
+//    buttonListener()
 
     viewModel.nameLiveData.observe(this) {
       welcomeTV.text = getString(R.string.welcome_back, it)
@@ -69,24 +71,21 @@ class ShareActivity : AppCompatActivity() {
       compareFriendIntent.putExtra("selectedFriendName", it.chosenName)
       startActivity(compareFriendIntent)
     }
+
+    viewModel.shareListener.observe(this) {
+      when (it) {
+        ShareButtons.SHARE -> sendShareText()
+        ShareButtons.WIPEDATA -> {}
+      }
+      sendShareText()
+    }
   }
 
   private fun setBinding() {
     Logger.d("Setting Binding")
     val binding: ActivityShareBinding = DataBindingUtil.setContentView(this, R.layout.activity_share)
     binding.vm = viewModel
-    binding.shareClickListener = shareClickListener
     binding.lifecycleOwner = this
-  }
-
-  private fun buttonListener() {
-    submitButton.setOnClickListener {
-      viewModel.submitName(personNameET.text.toString())
-    }
-    wipeUserButton.setOnClickListener {
-      viewModel.wipeUser()
-      Logger.d("Wiping User")
-    }
   }
 
   private fun sendShareText() {
@@ -107,7 +106,6 @@ class ShareActivity : AppCompatActivity() {
     dialog.setMessage("Do you want to add $newFriendUID to your friend list?")
     dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes") { _, _ ->
       viewModel.addFriend(newFriendUID)
-    //      Toast.makeText(this, "Friends list functionality coming next release", Toast.LENGTH_LONG).show()
     }
     dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No") { d, _ ->
       d.cancel()

@@ -22,4 +22,6 @@
     <string name="no_last_updated_error">No Last Updated</string>
     <string name="users_have_d_commonalities">Users have %d commonalities</string>
     <string name="no_commonalities">No commonalities</string>
+    <string name="no_friends_error">User has no friends</string>
+    <string name="no_name_error">getUserData: No Name Found</string>
 </resources>

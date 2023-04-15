@@ -7,9 +7,6 @@
         <variable
             name="vM"
             type="org.clarkecollective.raderie.ui.share.ShareActivityViewModel" />
-        <variable
-            name="shareClickListener"
-            type="org.clarkecollective.raderie.ui.share.ShareClickListener" />
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout
@@ -41,6 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/wipe_user"
+            android:onClick="@{() -> vM.onWipeUserClicked()}"
             app:layout_constraintBottom_toTopOf="@+id/friendRV"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -68,7 +66,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/share_via_text"
-            android:onClick="@{() -> shareClickListener.onShareClicked()}"
+            android:onClick="@{() -> vM.onShareClicked()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/welcomeTV" />
@@ -99,6 +97,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="@string/name"
+            android:text="@{vM.selfName}"
             android:importantForAutofill="no"
             android:inputType="textPersonName"
             android:minHeight="48dp"
@@ -112,6 +111,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/submit"
+            android:onClick="@{() -> vM.onClickSubmitName()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/personNameET" />

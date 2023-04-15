@@ -1,5 +1,7 @@
 package org.clarkecollective.raderie.ui.results
 
+import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,10 +17,21 @@ import org.clarkecollective.raderie.databinding.ActivityResultsBinding
 
 class ResultsActivity : AppCompatActivity() {
 
+  companion object {
+    fun newIntent(context: Context, deck: ArrayList<HumanValue>): Intent {
+      val intent = Intent(context, ResultsActivity::class.java)
+      intent.putExtra(context.getString(R.string.deckExtra), deck)
+      return intent
+     }
+  }
+
   private val resultsActivityViewModel: ResultsActivityViewModel by viewModels()
+
+
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    //TODO: Get this from database instead of intent
     resultsActivityViewModel.setDeck(intent.extras?.get(getString(R.string.deckExtra)) as ArrayList<HumanValue>)
     Log.d("VR", "Creating Results Activity")
     Log.d("VR", "Deck size: " + resultsActivityViewModel.deck.value?.size)

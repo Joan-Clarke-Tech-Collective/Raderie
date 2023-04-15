@@ -28,11 +28,12 @@ class CompareRecyclerAdapter(private val vM: CompareViewModel, @LayoutRes privat
   }
 
   private fun getObjFromPosition(position: Int): Comparison {
+//    return vM.compareLV.value?.sortedBy { it.getDelta() }?.get(position) ?: Comparison(-1, HumanValue(), HumanValue())
     return vM.compareLV.value?.get(position) ?: Comparison(-1, HumanValue(), HumanValue())
   }
 
   override fun getItemCount(): Int {
-    return vM.friendDeckLV.value?.size ?: 0
+    return vM.compareLV.value?.size ?: 0
   }
 
   private fun getLayoutIdForPosition(): Int {

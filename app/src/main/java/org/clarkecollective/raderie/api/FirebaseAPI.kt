@@ -5,11 +5,18 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.orhanobut.logger.Logger
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.addTo
+import io.reactivex.rxjava3.observers.DisposableSingleObserver
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.clarkecollective.raderie.R
 import org.clarkecollective.raderie.ValueRepo
+import org.clarkecollective.raderie.log
+import org.clarkecollective.raderie.models.Friend
 import org.clarkecollective.raderie.models.HumanValue
 
 class FirebaseAPI(val context: Context) {
@@ -19,7 +26,10 @@ class FirebaseAPI(val context: Context) {
   private val userRef = db.collection("users")
   private var docRef =
     userRef.document(auth.currentUser?.uid.toString()).collection("deck")
+  private var friendsRef =
+    userRef.document(auth.currentUser?.uid.toString()).collection("friendsList")
   private val repo = ValueRepo()
+  val compositeDisposable = io.reactivex.rxjava3.disposables.CompositeDisposable()
 
   fun getMyDeck(): Single<List<HumanValue>> {
     return Single.create { emitter ->
@@ -170,6 +180,91 @@ class FirebaseAPI(val context: Context) {
         .addOnFailureListener {
           emitter.onError(it)
         }
+    }
+  }
+
+  fun getFriendsList(): Single<List<Friend>> {
+    return Single.create { emitter ->
+      friendsRef.get().addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+          val collection = task.result
+          if (collection != null) {
+            if (!collection.isEmpty) {
+              // User has a saved deck
+              emitter.onSuccess(collection.toObjects(Friend::class.java))
+            } else {
+              //User has no friends :'(
+              emitter.onError(Exception(context.getString(R.string.no_friends_error)))
+            }
+          } else {
+            // There is no user in the DB
+            createUser()
+            emitter.onError(Exception(context.getString(R.string.no_user_error)))
+          }
+        }
+      }
+    }
+  }
+
+  fun getUserData(uuid: String): Single<Friend> {
+    Logger.d("Getting user data for $uuid")
+    return Single.create { emitter ->
+      userRef.document(uuid).get().addOnCompleteListener { task ->
+        Logger.d("Task = $task")
+        if (task.isSuccessful) {
+          val user = task.result
+          Logger.d("Result = ${task.result}")
+          if (user != null) {
+            if (user.exists()) {
+              Logger.d("User exists: $user")
+              val name = user.get("userChosenName")
+              Logger.d("Name = $name")
+//              val deck: List<HumanValue> = user.get("deck", List::class.java) as List<HumanValue>
+              if (name != null) {
+                emitter.onSuccess(Friend(uuid, name as String, 0))
+              }
+              else {
+                emitter.onError(Throwable(context.getString(R.string.no_name_error)))
+              }
+            }
+            else {
+              emitter.onError(Throwable(context.getString(R.string.no_user_error)))
+            }
+          }
+          else {
+            Logger.d("User is null")
+            emitter.onError(Throwable(context.getString(R.string.no_user_error)))
+          }
+        }
+        else {
+          task.exception?.log()
+          emitter.onError(Throwable(task.exception!!.message))
+        }
+      }
+    }
+  }
+
+  fun addFriend(uuid: String): Single<Friend> {
+    return Single.create { emitter ->
+      getUserData(uuid).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribeWith(object : DisposableSingleObserver<Friend>() {
+        override fun onSuccess(t: Friend) {
+          Logger.d("Got friend details $t")
+          friendsRef.document(uuid).set(t).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+              emitter.onSuccess(t)
+            } else {
+              Logger.e(task.exception!!.localizedMessage?: "Error without message")
+              emitter.onError(Throwable(task.exception!!.message))
+            }
+          }
+        }
+
+        override fun onError(e: Throwable) {
+          e.log()
+          emitter.onError(e)
+        }
+
+      }).addTo(compositeDisposable)
     }
   }
 }
