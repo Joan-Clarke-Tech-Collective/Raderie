@@ -24,4 +24,5 @@
     <string name="no_commonalities">No commonalities</string>
     <string name="no_friends_error">User has no friends</string>
     <string name="no_name_error">getUserData: No Name Found</string>
+    <string name="friend_me">Hi!  Friend me over on Raderie.  We can compare values and start a conversation about what matters.  https://raderie.me/user/%s</string>
 </resources>

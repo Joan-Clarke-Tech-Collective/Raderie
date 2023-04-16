@@ -389,16 +389,6 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
   }
 
   private fun onlineRankings(winner: HumanValue, loser: HumanValue) {
-    val disposableUpdater = object : DisposableCompletableObserver() {
-      override fun onComplete() {
-        Logger.d("Remote DB updated")
-      }
-
-      override fun onError(e: Throwable) {
-        Logger.e(e, "Error updating remote DB")
-      }
-    }
-
     val updatedTime: Long = System.currentTimeMillis()
 
     firebaseAPI.updateCompetitors(winner, loser, updatedTime).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribeWith(object: DisposableCompletableObserver(){

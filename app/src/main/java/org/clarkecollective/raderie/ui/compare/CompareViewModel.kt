@@ -24,13 +24,11 @@ import kotlin.math.min
 
 class CompareViewModel(app: Application): AndroidViewModel(app) {
   val adapter = CompareRecyclerAdapter(this, R.layout.compare_item)
-  val friendDeck = mutableListOf<HumanValue?>()
   val friendDeckLV = MutableLiveData<List<HumanValue>>()
   val myDeckLV = MutableLiveData<List<HumanValue>>()
   val friendNameLV = MutableLiveData<String>()
   private val compositeDisposable = CompositeDisposable()
   private val firebaseAPI: FirebaseAPI = FirebaseAPI(app.applicationContext)
-  val commonality = MutableLiveData<List<HumanValue>>()
   val compareTotal = MutableLiveData<String>()
   val compareLV = MutableLiveData<List<Comparison>>()
 
@@ -99,6 +97,8 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
     }
   }
 
+  // TODO: This is a duplicate of the same method in the DeckViewModel. Refactor to a common place
+  // TODO: Check name of friend
   private fun fetchJustFriend(friendUUID: String, friendName: String) : Single<List<HumanValue>> {
     Logger.d("Fetching friend")
     return Single.create {
@@ -126,7 +126,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
            .subscribeWith(object : DisposableSingleObserver<List<HumanValue>>() {
              override fun onSuccess(t: List<HumanValue>) {
                Logger.d("You: $t")
-               myDeckLV.value = t as List<HumanValue>
+               myDeckLV.value = t
                it.onSuccess(t)
              }
 
@@ -138,9 +138,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
        }
   }
 
-  fun findLargestAndSmallestDeltas(compareLists: Map<WHOSE, List<HumanValue>>, similarities: List<Int>) {
-
-  }
+  //TODO Find and display largest and smallest deltas
 
   override fun onCleared() {
     super.onCleared()

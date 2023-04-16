@@ -4,6 +4,9 @@ plugins {
   id 'kotlin-kapt'
   id 'com.google.gms.google-services'
   id 'org.jetbrains.kotlin.android'
+  id 'com.google.firebase.firebase-perf'
+  id 'com.google.firebase.crashlytics'
+
 }
 
 android {
@@ -18,8 +21,8 @@ android {
     minSdkVersion 23
     multiDexEnabled true
     targetSdkVersion 33
-    versionCode 4
-    versionName "Alpha Build 4"
+    versionCode 5
+    versionName "Alpha Build 5"
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -31,11 +34,11 @@ android {
     }
   }
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_19
-    targetCompatibility JavaVersion.VERSION_19
+    sourceCompatibility JavaVersion.VERSION_18
+    targetCompatibility JavaVersion.VERSION_18
   }
   kotlinOptions {
-    jvmTarget = '19'
+    jvmTarget = '18'
   }
     namespace 'org.clarkecollective.raderie'
 }
@@ -48,14 +51,14 @@ dependencies {
   implementation 'com.google.android.material:material:1.8.0'
   implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-  implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
-  testImplementation 'junit:junit:4.+'
+  implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
+  testImplementation 'junit:junit:4.13.2'
   androidTestImplementation 'androidx.test.ext:junit:1.1.4'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
 
   implementation("com.orhanobut:logger:2.2.0")
 
-  def activity_version = "1.6.1"
+  def activity_version = "1.7.0"
 
   // Kotlin
   implementation "androidx.activity:activity-ktx:$activity_version"
@@ -64,6 +67,8 @@ dependencies {
   implementation 'com.google.firebase:firebase-analytics-ktx'
   implementation 'com.google.firebase:firebase-auth-ktx'
   implementation 'com.google.firebase:firebase-firestore-ktx'
+  implementation 'com.google.firebase:firebase-crashlytics-ktx'
+
 
   // https://github.com/airbnb/DeepLinkDispatch
   implementation 'com.airbnb:deeplinkdispatch:6.1.0'

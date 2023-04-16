@@ -10,7 +10,7 @@ class ValueRepo {
         }
     }
 
-    val humanValueList = arrayOf(
+    private val humanValueList = arrayOf(
         "Acceptance",
         "Accomplishment",
         "Accountability",

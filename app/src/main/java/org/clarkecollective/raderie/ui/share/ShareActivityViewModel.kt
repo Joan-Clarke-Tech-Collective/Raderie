@@ -14,7 +14,6 @@ import com.orhanobut.logger.Logger
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
-import io.reactivex.rxjava3.observers.DisposableCompletableObserver
 import io.reactivex.rxjava3.observers.DisposableSingleObserver
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.clarkecollective.raderie.R
@@ -25,14 +24,12 @@ import org.clarkecollective.raderie.models.Friend
 class ShareActivityViewModel(application: Application): AndroidViewModel(application) {
   val nameLiveData = MutableLiveData<String>()
   val nameExists = MutableLiveData<Boolean>()
-  val firebaseAPI = FirebaseAPI(application)
+  private val firebaseAPI = FirebaseAPI(application)
   private val db = Firebase.firestore
   val auth = Firebase.auth
 
-  //TODO don't make so many calls to auth
   private val usersRef = db.collection("users")
   private val docRef = usersRef.document(auth.currentUser?.uid.toString())
-  private val friendRef = docRef.collection("friendList")
   private val sharedPreferences: SharedPreferences =
     getApplication<Application>().getSharedPreferences("user-data", Context.MODE_PRIVATE)
   private val friendList = ArrayList<Friend?>()
@@ -41,6 +38,7 @@ class ShareActivityViewModel(application: Application): AndroidViewModel(applica
   val shareListener = MutableLiveData<ShareButtons>()
   val selfName = ObservableField("")
   private val compositeDisposable = CompositeDisposable()
+  val addedName = MutableLiveData<String>()
 
   private val clickInterface: FriendClickInterface = object : FriendClickInterface {
     override fun onFriendClicked(friend: Friend) {
@@ -87,7 +85,7 @@ class ShareActivityViewModel(application: Application): AndroidViewModel(applica
       putString(getApplication<Application>().getString(R.string.choseNameKey), selfName.get())
       apply()
     }
-// Move this to API
+// TODO Move this to API
     docRef.set(map).addOnCompleteListener {
       nameLiveData.value = selfName.get()
       nameExists.value = true
@@ -118,7 +116,6 @@ class ShareActivityViewModel(application: Application): AndroidViewModel(applica
       .observeOn(AndroidSchedulers.mainThread())
       .subscribeWith(object : DisposableSingleObserver<Friend>() {
         override fun onSuccess(t: Friend) {
-          Logger.d("Friend: $t")
           friendList.add(t)
           friendListLD.value = friendList
           friendsAdapter.notifyItemRangeInserted(friendList.size - 1, 1)
@@ -137,32 +134,6 @@ class ShareActivityViewModel(application: Application): AndroidViewModel(applica
   }
 }
 
-//
-//  fun addFriend(uuid: String) {
-//    Logger.d("Adding friend")
-//    usersRef.document(uuid).get().addOnCompleteListener { task ->
-//      if (task.isSuccessful) {
-//        Logger.d("Task result = ${task.result}")
-//        val document = task.result
-//        if (document != null) {
-//          document.reference.collection("deck").whereGreaterThan("gamesPlayed", 0) .get().addOnCompleteListener { greaterThanTask ->
-//            Logger.d("It found (deck): ${greaterThanTask.result.size()} items large")
-//            val newFriend = Friend(uuid, document["userChosenName"].toString(), greaterThanTask.result.size() )
-//            Logger.d(newFriend)
-//            friendRef.document(uuid).set(newFriend)
-//          }
-//        }
-//        else {
-//          Logger.d("Collection is null")
-//        }
-//      }
-//      else {
-//        Logger.e("Document get failed.  ${task.exception}")
-//      }
-//    }
-//  }
-//}
-
 enum class ShareButtons {
-  SHARE, WIPEDATA
+  SHARE, WIPE_DATA
 }

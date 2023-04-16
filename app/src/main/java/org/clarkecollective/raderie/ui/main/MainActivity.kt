@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
       when (it) {
         MAIN_MENU.SHARE -> startSharingActivity()
         MAIN_MENU.RESULT -> startResultsActivity()
+        else -> {}
       }
     }
   }
@@ -106,7 +107,7 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun startSharingActivity(){
-    val intent = ShareActivity.newIntent(this)
+    val intent = Intent(this, ShareActivity::class.java)
     startActivity(intent)
   }
 

@@ -25,11 +25,11 @@ class ResultsRecyclerAdapter(private val vM: ResultsActivityViewModel, @LayoutRe
     }
 
     private fun getObjFromPosition(position: Int): HumanValue {
-        return vM.onlyMeaningfulResults()?.sortedBy { it.rating }?.asReversed()?.get(position) ?: HumanValue()
+        return vM.meaningfulDeck.value?.sortedBy { it.rating }?.asReversed()?.get(position) ?: HumanValue()
     }
 
     override fun getItemCount(): Int {
-        return vM.onlyMeaningfulResults()?.size ?: 0
+        return vM.meaningfulDeck.value?.size ?: 0
     }
 
     private fun getLayoutIdForPosition(): Int {

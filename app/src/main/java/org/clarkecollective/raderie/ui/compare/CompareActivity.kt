@@ -26,11 +26,6 @@ class CompareActivity : AppCompatActivity() {
         val binding: ActivityCompareBinding = DataBindingUtil.setContentView(this, R.layout.activity_compare)
         binding.vm = viewModel
         binding.lifecycleOwner = this
-        setObservers()
-    }
-
-    private fun setObservers() {
-
     }
 }
 

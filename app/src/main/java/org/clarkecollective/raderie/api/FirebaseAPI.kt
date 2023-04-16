@@ -29,7 +29,7 @@ class FirebaseAPI(val context: Context) {
   private var friendsRef =
     userRef.document(auth.currentUser?.uid.toString()).collection("friendsList")
   private val repo = ValueRepo()
-  val compositeDisposable = io.reactivex.rxjava3.disposables.CompositeDisposable()
+  private val compositeDisposable = io.reactivex.rxjava3.disposables.CompositeDisposable()
 
   fun getMyDeck(): Single<List<HumanValue>> {
     return Single.create { emitter ->
@@ -206,20 +206,14 @@ class FirebaseAPI(val context: Context) {
     }
   }
 
-  fun getUserData(uuid: String): Single<Friend> {
-    Logger.d("Getting user data for $uuid")
+  private fun getUserData(uuid: String): Single<Friend> {
     return Single.create { emitter ->
       userRef.document(uuid).get().addOnCompleteListener { task ->
-        Logger.d("Task = $task")
         if (task.isSuccessful) {
           val user = task.result
-          Logger.d("Result = ${task.result}")
           if (user != null) {
             if (user.exists()) {
-              Logger.d("User exists: $user")
               val name = user.get("userChosenName")
-              Logger.d("Name = $name")
-//              val deck: List<HumanValue> = user.get("deck", List::class.java) as List<HumanValue>
               if (name != null) {
                 emitter.onSuccess(Friend(uuid, name as String, 0))
               }
@@ -232,7 +226,6 @@ class FirebaseAPI(val context: Context) {
             }
           }
           else {
-            Logger.d("User is null")
             emitter.onError(Throwable(context.getString(R.string.no_user_error)))
           }
         }
@@ -244,11 +237,22 @@ class FirebaseAPI(val context: Context) {
     }
   }
 
+  fun addName(name: String): Completable {
+    return Completable.create { emitter ->
+      userRef.document(auth.currentUser?.uid.toString()).update("userChosenName", name).addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+          emitter.onComplete()
+        } else {
+          emitter.onError(Throwable(task.exception!!.message))
+        }
+      }
+    }
+  }
+
   fun addFriend(uuid: String): Single<Friend> {
     return Single.create { emitter ->
       getUserData(uuid).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribeWith(object : DisposableSingleObserver<Friend>() {
         override fun onSuccess(t: Friend) {
-          Logger.d("Got friend details $t")
           friendsRef.document(uuid).set(t).addOnCompleteListener { task ->
             if (task.isSuccessful) {
               emitter.onSuccess(t)
@@ -260,7 +264,6 @@ class FirebaseAPI(val context: Context) {
         }
 
         override fun onError(e: Throwable) {
-          e.log()
           emitter.onError(e)
         }
 

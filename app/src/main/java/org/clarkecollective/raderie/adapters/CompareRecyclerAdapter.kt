@@ -24,11 +24,11 @@ class CompareRecyclerAdapter(private val vM: CompareViewModel, @LayoutRes privat
   }
 
   override fun onBindViewHolder(holder: CompareViewHolder, position: Int) {
-    holder.bind(getObjFromPosition(position), position)
+    holder.bind(getObjFromPosition(position))
   }
 
+  // TODO Make the top of the list the label for the column
   private fun getObjFromPosition(position: Int): Comparison {
-//    return vM.compareLV.value?.sortedBy { it.getDelta() }?.get(position) ?: Comparison(-1, HumanValue(), HumanValue())
     return vM.compareLV.value?.get(position) ?: Comparison(-1, HumanValue(), HumanValue())
   }
 
@@ -45,7 +45,7 @@ class CompareRecyclerAdapter(private val vM: CompareViewModel, @LayoutRes privat
   }
 
   class CompareViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
-    fun bind(comparison: Comparison, position: Int) {
+    fun bind(comparison: Comparison) {
       Log.d("VR", "Binding Comparison: $comparison")
       binding.setVariable(BR.comparison, comparison)
     }

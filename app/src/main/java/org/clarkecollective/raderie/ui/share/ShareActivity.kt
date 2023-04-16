@@ -3,21 +3,26 @@ package org.clarkecollective.raderie.ui.share
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.orhanobut.logger.Logger
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.addTo
+import io.reactivex.rxjava3.observers.DisposableCompletableObserver
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.clarkecollective.raderie.R
+import org.clarkecollective.raderie.api.FirebaseAPI
 import org.clarkecollective.raderie.databinding.ActivityShareBinding
+import org.clarkecollective.raderie.log
 import org.clarkecollective.raderie.toast
 import org.clarkecollective.raderie.ui.compare.CompareActivity
 
@@ -26,26 +31,20 @@ class ShareActivity : AppCompatActivity() {
   companion object {
     fun newIntent(context: Context): Intent {
       return Intent(context, ShareActivity::class.java)
-
     }
   }
 
   private val viewModel: ShareActivityViewModel by viewModels()
   private lateinit var welcomeTV: TextView
-  private lateinit var submitButton: Button
-  private lateinit var personNameET: EditText
-  private lateinit var wipeUserButton: Button
-  private lateinit var shareButton: Button
+
+  private lateinit var firebaseAPI: FirebaseAPI
+  private val compositeDisposable = CompositeDisposable()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_share)
 
-    welcomeTV = findViewById(R.id.welcomeTV)
-    submitButton = findViewById(R.id.submitButton)
-    personNameET = findViewById(R.id.personNameET)
-    wipeUserButton = findViewById(R.id.wipeUserButton)
-    shareButton = findViewById(R.id.shareButton)
+    firebaseAPI = FirebaseAPI(application)
 
     setObservers()
 
@@ -60,8 +59,6 @@ class ShareActivity : AppCompatActivity() {
   }
 
   private fun setObservers() {
-//    buttonListener()
-
     viewModel.nameLiveData.observe(this) {
       welcomeTV.text = getString(R.string.welcome_back, it)
     }
@@ -75,24 +72,44 @@ class ShareActivity : AppCompatActivity() {
     viewModel.shareListener.observe(this) {
       when (it) {
         ShareButtons.SHARE -> sendShareText()
-        ShareButtons.WIPEDATA -> {}
+        ShareButtons.WIPE_DATA -> {}
+        else -> {}
       }
       sendShareText()
+    }
+    var sharedPreferences = getSharedPreferences("user-data", Context.MODE_PRIVATE)
+
+    viewModel.addedName.observe(this) {
+      welcomeTV.text = getString(R.string.welcome_back, it)
+      with (sharedPreferences.edit()) {
+        putString(getString(R.string.choseNameKey), it)
+        apply()
+      }
+      firebaseAPI.addName(it).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribeWith(object: DisposableCompletableObserver() {
+        override fun onComplete() {
+          Logger.d("Added name to firebase")
+        }
+
+        override fun onError(e: Throwable) {
+          e.log()
+        }
+      }).addTo(compositeDisposable)
     }
   }
 
   private fun setBinding() {
     Logger.d("Setting Binding")
     val binding: ActivityShareBinding = DataBindingUtil.setContentView(this, R.layout.activity_share)
+    welcomeTV = binding.welcomeTV
+
+    // TODO A lot of these could be done with data binding
+
     binding.vm = viewModel
     binding.lifecycleOwner = this
   }
 
   private fun sendShareText() {
-    val outgoingData =
-      "Hi!  Friend me over on Raderie.  " +
-              "We can compare values and start a conversation about what matters.  " +
-              "https://raderie.me/user/${viewModel.auth.currentUser?.uid}"
+    val outgoingData = getString(R.string.friend_me, viewModel.auth.currentUser?.uid)
     val sendIntent: Intent = Intent().apply {
       action = Intent.ACTION_SEND
       putExtra(Intent.EXTRA_TEXT, outgoingData)
@@ -112,10 +129,6 @@ class ShareActivity : AppCompatActivity() {
     }
     return dialog
   }
-}
-
-interface ShareClickListener {
-  fun onShareClicked()
 }
 
 @BindingAdapter("setFriendAdapter")
