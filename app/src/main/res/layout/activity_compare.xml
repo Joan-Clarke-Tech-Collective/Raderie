@@ -92,7 +92,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/compareLabelCL" />
+        app:layout_constraintTop_toBottomOf="@+id/compareLabelCL"
+        tools:listitem="@layout/compare_item" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 

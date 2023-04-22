@@ -131,6 +131,7 @@ class ShareActivityViewModel(application: Application): AndroidViewModel(applica
   override fun onCleared() {
     super.onCleared()
     compositeDisposable.clear()
+    firebaseAPI.dispose()
   }
 }
 

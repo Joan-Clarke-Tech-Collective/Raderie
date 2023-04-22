@@ -15,10 +15,7 @@ import org.clarkecollective.raderie.R
 import org.clarkecollective.raderie.databinding.ActivityMainBinding
 import androidx.activity.viewModels
 import androidx.room.Room
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.SingleObserver
 import io.reactivex.rxjava3.disposables.Disposable
@@ -107,7 +104,7 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun startSharingActivity(){
-    val intent = Intent(this, ShareActivity::class.java)
+    val intent = ShareActivity.newIntent(this)
     startActivity(intent)
   }
 
@@ -145,5 +142,10 @@ class MainActivity : AppCompatActivity() {
       d.cancel()
     }
     return dialog
+  }
+
+  override fun onDestroy() {
+    firebaseAPI.dispose()
+    super.onDestroy()
   }
 }

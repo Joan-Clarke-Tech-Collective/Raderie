@@ -7,7 +7,6 @@ import kotlin.math.roundToInt
 // Function to calculate the Probability
 
 class RankingCalculator {
-  //TODO make this calculate both players
   fun calculateNewRanking(winner: HumanValue, loser: HumanValue, tie: Boolean): Pair<Int, Int>{
 
     val exponent = (loser.rating - winner.rating) / 20
