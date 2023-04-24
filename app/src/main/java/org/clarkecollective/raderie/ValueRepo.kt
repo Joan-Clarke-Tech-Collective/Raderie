@@ -37,7 +37,7 @@ class ValueRepo {
         "Challenge",
         "Charity",
         "Cleanliness",
-        "Clear",
+        "Clarity",
         "Clever",
         "Comfort",
         "Commitment",

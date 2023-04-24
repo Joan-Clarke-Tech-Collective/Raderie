@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- TODO Make sure numbers are sequential -->
-<!-- TODO Find better definitions for marked lines -->
 <!-- TODO Make sure these match the values in the repo -->
-<!-- TODO Make sure database rewrites to accomodate changes -->
+<!-- TODO Make sure database rewrites to accommodate changes -->
 <resources>
     <string name="definition_0_acceptance">A disposition to tolerate or accept people or situations.</string>
     <string name="definition_1_accomplishment">Having successfully achieved many things, especially after great difficulty</string>
@@ -18,7 +17,7 @@
     <string name="definition_10_assertiveness">the quality of being self-assured and confident without being aggressive.</string>
     <string name="definition_11_attentiveness">Paying careful attention to something or someone.</string>
     <string name="definition_12_awareness">The state or condition of being aware and noticing things around you.</string>
-    <string name="definition_13_balance">A state of equilibrium or equipoise.</string> //This could be better
+    <string name="definition_13_balance">Maintaining equilibrium in all aspects of one\'s life, avoiding extremes and finding a healthy middle ground.</string>
     <string name="definition_14_beauty">The quality present in a thing or person that gives intense pleasure or deep satisfaction to the mind, whether arising from sensory manifestations (as shape, color, sound, etc.), a meaningful design or pattern, or something else (as a personality in which high spiritual qualities are manifest).</string>
     <string name="definition_15_boldness">The quality of being brave and daring.</string> //Boldness and bravery synonyms?
     <string name="definition_16_bravery">The quality of mind or spirit that enables a person to face danger or pain without showing fear.</string>
@@ -30,15 +29,15 @@
     <string name="definition_22_certainty">The state of being certain.</string>
     <string name="definition_23_challenge">A call to take part in some contest, dispute, or competition.</string>
     <string name="definition_24_charity">The voluntary giving of help, typically in the form of money, to those in need.</string>
+    <string name="definition_26_clarity">Free from doubt or ambiguity; unequivocal.</string>
     <string name="definition_25_cleanliness">The state of being clean.</string>
-    <string name="definition_26_clear">Free from doubt or ambiguity; unequivocal.</string> // Could be better
     <string name="definition_27_clever">Having or showing quickness and inventiveness in adapting to new situations.</string>
     <string name="definition_28_comfort">A state of physical ease and freedom from pain or constraint.</string>
     <string name="definition_29_commitment">The state or quality of being dedicated to a cause, activity, etc.</string>
     <string name="definition_30_common_sense">Sound and prudent judgment based on a simple perception of the situation or facts.</string>
     <string name="definition_31_communication">The imparting or exchanging of information by speaking, writing, or using some other medium.</string>
     <string name="definition_32_community">A group of people living in the same place or having a particular characteristic in common.</string>
-    <string name="definition_33_compassion">Sympathetic pity and concern for the sufferings or misfortunes of others.</string> //Could be better
+    <string name="definition_33_compassion">The ability to show kindness and understanding towards others, even in difficult situations.</string>
     <string name="definition_34_competence">The quality of being adequately or well qualified for some task.</string>
     <string name="definition_35_concentration">The action or power of focusing one\'s mind on something.</string>
     <string name="definition_36_confidence">The feeling or belief that one can rely on someone or something; firm trust.</string>
@@ -57,15 +56,15 @@
     <string name="definition_49_curiosity">A strong desire to know or learn something.</string>
     <string name="definition_50_decisiveness">The quality of being determined to do something.</string>
     <string name="definition_51_dedication">The quality of being dedicated to a task or purpose.</string>
-    <string name="definition_52_dependability">The quality of being dependable.</string> // Could be better
+    <string name="definition_52_dependability">The quality of being reliable, trustworthy, and consistent in one\'s actions and behaviors, often involving a sense of responsibility, accountability, and commitment.</string>
     <string name="definition_53_determination">The quality of being decided or resolved; firmness of purpose.</string>
     <string name="definition_54_development">The process of developing or being developed.</string>
-    <string name="definition_55_devotion">The quality of being devoted to a task or purpose.</string> // Could be better
-    <string name="definition_55_dignity">The state or quality of being worthy of honor or respect.</string> // Could be better
-    <string name="definition_50_discipline">The practice of training people to obey rules or a code of behavior, using punishment to correct disobedience.</string> // Could be better
+    <string name="definition_55_devotion">Dedication and loyalty towards a cause, belief, or person, often demonstrated through consistent effort and sacrifice.</string>
+    <string name="definition_55_dignity">A sense of self-respect and worthiness that allows one to carry oneself with honor and grace, regardless of circumstances or treatment by others.</string>
+    <string name="definition_50_discipline">The practice of self-control and restraint, often in pursuit of a goal or ideal, that involves adhering to rules and routines even in the face of temptation or distraction.</string>
     <string name="definition_51_discovery">The action or process of discovering something.</string>
-    <string name="definition_52_dreams">A series of thoughts, images, and sensations occurring in a person\'s mind during sleep.</string> // Could be better
-    <string name="definition_53_drive">A strong, usually sexual, desire or urge.</string> // Could be better
+    <string name="definition_52_dreams">Aspirations and goals that are deeply personal and meaningful, often tied to a person\'s values, passions, and sense of purpose.</string>
+    <string name="definition_53_drive">A strong inner motivation and determination to pursue one\'s goals and aspirations, often characterized by enthusiasm, focus, and persistence.</string>
     <string name="definition_54_duty">A moral or legal obligation; responsibility.</string>
     <string name="definition_55_earnestness">The quality of being serious and sincere.</string>
     <string name="definition_56_effectiveness">The quality of being successful in producing a desired or intended result.</string>
@@ -92,24 +91,23 @@
     <string name="definition_78_feelings">An emotional state or reaction.</string>
     <string name="definition_79_ferocity">The state or quality of being ferocious.</string>
     <string name="definition_80_fidelity">Faithfulness to a person, cause, or belief, demonstrated by continuing loyalty and support.</string>
-    <string name="definition_81_flexibility">The quality of bending easily without breaking.</string> // Could be better
-    <string name="definition_82_focus">The center of interest or activity.</string> // Could be better
+    <string name="definition_81_flexibility">The ability to adapt and adjust to changing circumstances, perspectives, and expectations, without compromising one\'s values or goals.</string>
+    <string name="definition_82_focus">The ability to concentrate one\'s attention and efforts on a specific task or objective, often involving filtering out distractions and maintaining a clear sense of purpose.</string>
     <string name="definition_83_foresight">The ability to predict or the action of predicting what will happen or be needed in the future.</string>
-    <string name="definition_84_forgiveness">The action or process of forgiving or being forgiven.</string> // Could be better
+    <string name="definition_84_forgiveness">The act of letting go of resentment or anger towards someone who has wronged you, often characterized by empathy, understanding, and a desire to move on.</string>
     <string name="definition_85_fortitude">Courage in pain or adversity.</string>
     <string name="definition_86_freedom">The power or right to act, speak, or think as one wants without hindrance or restraint.</string>
-    <string name="definition_87_friendship">The emotions or conduct of friends; the state of being friends.</string> // Could be better
-    <string name="definition_88_fun">Enjoyment, amusement, or lighthearted pleasure.</string>
+    <string name="definition_87_friendship">A deep and meaningful connection between two or more people that is characterized by mutual affection, trust, support, and respect.</string>
     <string name="definition_89_generosity">The quality of being kind and generous.</string>
     <string name="definition_90_genius">Exceptional intellectual or creative power or other natural ability.</string>
     <string name="definition_91_giving">The act of bestowing as a gift; a conferring or imparting.</string>
-    <string name="definition_92_goodness">The quality of being good.</string> // Could be better
+    <string name="definition_92_goodness">A moral and ethical quality that involves doing what is right, just, and fair, often in the service of others.</string>
     <string name="definition_93_grace">Simple elegance or refinement of movement.</string>
     <string name="definition_94_gratitude">The quality of being thankful; readiness to show appreciation for and to return kindness.</string>
     <string name="definition_95_greatness">The quality of being great, distinguished, or eminent.</string>
     <string name="definition_96_growth">The process of learning and improving oneself.</string>
-    <string name="definition_97_guidance">Advice or information aimed at resolving a problem or difficulty, especially as given by someone in authority.</string> // Could be better
-    <string name="definition_98_happiness">The state of being happy.</string> // Could be better
+    <string name="definition_97_guidance">The provision of direction, advice, and support to help someone achieve their goals, often through mentorship, coaching, or counseling.</string>
+    <string name="definition_98_happiness">A state of positive emotion and well-being that is characterized by contentment, pleasure, and satisfaction.</string>
     <string name="definition_99_hard_work">Putting in great deal of effort or endurance.</string>
     <string name="definition_100_harmony">The quality of forming a pleasing and consistent whole.</string>
     <string name="definition_101_health">The state of being free from illness or injury.</string>
@@ -122,23 +120,21 @@
     <string name="definition_108_humility">A modest view of one\'s own importance; humbleness.</string>
     <string name="definition_109_imagination">The faculty or action of forming new ideas, or images or concepts of external objects not present to the senses.</string>
     <string name="definition_110_improvement">The process of making something, especially oneself better.</string>
-    <string name="definition_111_independence">The fact or state of being independent.</string> // Could be better
+    <string name="definition_111_independence">The ability to think, act, and make decisions without being overly influenced by others, often involving self-reliance, autonomy, and freedom.</string>
     <string name="definition_112_individuality">The quality or character of a particular person that distinguishes them from others of the same kind, especially when strongly marked.</string>
     <string name="definition_113_industriousness">Diligence; hard-working.</string>
     <string name="definition_114_influence">The capacity to have an effect on the character, development, or behavior of someone or something, or the effect itself.</string>
-    <string name="definition_115_innovation">The action or process of innovating.</string> //Could be better
+    <string name="definition_115_innovation">The process of creating something new or original that brings value or solves a problem, often involving creativity, experimentation, and risk-taking.</string>
     <string name="definition_116_inquisitiveness">An eager desire to know or learn something.</string>
     <string name="definition_117_insight">The quality of having an accurate and deep understanding.</string>
     <string name="definition_118_inspiration">The process of being mentally stimulated to do or feel something, especially to do something creative.</string>
     <string name="definition_119_integrity">The quality of being honest and having strong moral principles.</string>
     <string name="definition_120_intelligence">The ability to acquire and apply knowledge and skills.</string>
-    <string name="definition_121_intensity">The quality of being intense.</string> // Could be better
+    <string name="definition_121_intensity">The quality of being passionate, focused, and committed to a task or objective, often involving a high level of energy and effort.</string>
     <string name="definition_122_intimacy">Close familiarity or friendship.</string>
     <string name="definition_123_intuition">The ability to understand something immediately, without the need for conscious reasoning.</string>
     <string name="definition_124_inventiveness">The quality of being inventive; creativity.</string>
-    //Same as above but for joy
     <string name="definition_125_joy">A feeling of great pleasure and happiness.</string>
-    //Same as above but for justice, Kindness, knowledge, Lawfulness, Leadership, learning, liberty, logic, and love
     <string name="definition_126_justice">Just behavior or treatment.</string>
     <string name="definition_127_kindness">The quality of being friendly, generous, and considerate.</string>
     <string name="definition_128_knowledge">Facts, information, and skills acquired by a person through experience or education; the theoretical or practical understanding of a subject.</string>
@@ -148,11 +144,10 @@
     <string name="definition_132_liberty">The state of being free within society from oppressive restrictions imposed by authority on one\'s way of life, behavior, or political views.</string>
     <string name="definition_133_logic">Reasoning conducted or assessed according to strict principles of validity.</string>
     <string name="definition_134_love">An intense feeling of deep affection.</string>
-    // Same as above but for Loyalty, mastery, maturity, meaning, moderation, motivation, openness, optimism, order, organization, originality, passion
     <string name="definition_135_loyalty">The quality of being loyal to someone or something.</string>
     <string name="definition_136_mastery">Comprehensive knowledge or skill in a subject or accomplishment.</string>
     <string name="definition_137_maturity">The state, fact, or period of being mature.</string>
-    <string name="definition_138_meaning">What is meant by a word, text, concept, or action.</string> // Could be way better
+    <string name="definition_138_meaning">The significance or purpose that something holds, often tied to a person\'s values, beliefs, and sense of identity.</string>
     <string name="definition_139_moderation">The avoidance of excess or extremes, especially in one\'s behavior or political opinions.</string>
     <string name="definition_140_motivation">The reason or reasons one has for acting or behaving in a particular way.</string>
     <string name="definition_141_openness">The quality of being open to new ideas and opinions.</string>
@@ -161,23 +156,20 @@
     <string name="definition_144_organization">An organized body of people with a particular purpose, especially a business, society, association, etc.</string>
     <string name="definition_145_originality">The ability to think independently and creatively.</string>
     <string name="definition_146_passion">Strong and barely controllable emotion.</string>
-    // Same as above but for patience, peace, performance, persistence, playfullness, poise, potential, power, presence, productivity, professionalism, prosperity
     <string name="definition_147_patience">The capacity to accept or tolerate delay, trouble, or suffering without getting angry or upset.</string>
     <string name="definition_148_peace">Freedom from disturbance; tranquility.</string>
-    <string name="definition_149_performance">An act of staging or presenting a play, concert, or other form of entertainment.</string> // Could be better
+    <string name="definition_149_performance">The level of achievement or success that is demonstrated in a particular task or domain, often involving skills, abilities, and effort.</string>
     <string name="definition_150_persistence">Firm or obstinate continuance in a course of action in spite of difficulty or opposition.</string>
     <string name="definition_151_playfulness">Full of fun and high spirits.</string>
     <string name="definition_152_poise">Graceful and elegant bearing in a person.</string>
     <string name="definition_153_potential">Having or showing the capacity to become or develop into something in the future.</string>
-    <string name="definition_154_power">The ability or capacity to do something or act in a particular way.</string> // Could be better
-    <string name="definition_155_presence">The state or fact of existing, occurring, or being present in a place or thing.</string> // Could be better
-    <string name="definition_156_productivity">The state or quality of producing something.</string> // Could be better
-    <string name="definition_157_professionalism">The competence or skill expected of a professional.</string> // Could be better
-    <string name="definition_158_prosperity">The state of being prosperous.</string> // Could be better
-    // Same as above but for purpose, rationality, realism, reason, recognition, recreation, refinement, reflection, reliability, resilience, resolution, resolve, resourcefulness, respect, responsibility, responsiveness, rest, reverence, rigor, risk, sacrifice, security, self-awareness, self-control, selflessness, self-reliance, sensitivity, serenity, service, sharing, significance, silence, sincerity, skill, skillfulness, solitude, spontaneity, stability, status, strength, structure, success, support, surprise, sustainability, tact, talent, teamwork, temperance, thankfulness, thoroughness, thoughtfulness, thrift, timeliness, tradition, tranquility, transcendence, trust, trustworthiness, truth, understanding, uniqueness, unity, valor, variety, victory, vigor, vision, vitality, wealth, wholeness, will, wisdom, wonder, worthiness, zeal
-    // Same as above but for punctuality
+    <string name="definition_154_power">The ability to influence or control others or a situation, often involving resources, status, or authority.</string>
+    <string name="definition_155_presence">The quality of being fully engaged and attentive in the present moment, often involving mindfulness, awareness, and openness.</string>
+    <string name="definition_156_productivity">The level of efficiency and effectiveness in completing tasks or achieving goals, often involving time management, organization, and focus.</string>
+    <string name="definition_157_professionalism">The adherence to ethical standards, norms, and behaviors that are expected in a particular profession or field, often involving competence, reliability, and integrity.</string>
+    <string name="definition_158_prosperity">The state of being successful, wealthy, and flourishing, often involving financial abundance, health, and happiness.</string>
     <string name="definition_159_punctuality">The fact or quality of being on time.</string>
-    <string name="definition_160_purpose">The reason for which something is done or created or for which something exists.</string> // Could be better
+    <string name="definition_160_purpose">A clear and meaningful reason for existing or pursuing a particular goal, often tied to one\'s values, passions, and sense of fulfillment.</string>
     <string name="definition_161_rationality">The quality of being based on or in accordance with reason or logic.</string>
     <string name="definition_162_realism">The attitude or practice of accepting a situation as it is and being prepared to deal with it accordingly.</string>
     <string name="definition_163_reason">A cause, explanation, or justification for an action or event.</string>
@@ -193,17 +185,17 @@
     <string name="definition_173_responsibility">The state or fact of having a duty to deal with something or of having control over someone.</string>
     <string name="definition_174_responsiveness">The quality of reacting quickly and positively.</string>
     <string name="definition_175_rest">An instance or period of relaxing or ceasing to engage in strenuous or stressful activity.</string>
-    <string name="definition_176_restraint">A measure or condition that keeps someone or something under control or within limits.</string> // Could be much better
+    <string name="definition_176_restraint">The act of exercising self-control and moderation, often to avoid excess or inappropriate behavior or emotion.</string>
     <string name="definition_177_reverence">Deep respect for someone or something.</string>
     <string name="definition_178_rigor">The quality of being extremely thorough, exhaustive, or accurate.</string>
     <string name="definition_179_risk_taking">Willingness or enthusiasm for entering situation involving exposure to danger.</string>
-    <string name="definition_180_satisfaction">Fulfillment of one\'s wishes, expectations, or needs, or the pleasure derived from this.</string> // Could be better
+    <string name="definition_180_satisfaction">A sense of contentment and fulfillment that comes from achieving a goal or fulfilling a desire, often accompanied by a feeling of pleasure or gratification.</string>
     <string name="definition_181_security">The state of being free from danger or threat.</string>
     <string name="definition_180_self_reliance">Depending on one\'s own powers and resources rather than those of others.</string>
     <string name="definition_181_self_awareness">Conscious knowledge of one\'s own character, feelings, motives, and desires.</string>
     <string name="definition_182_self_control">The ability to control oneself, in particular one\'s emotions and desires or the expression of them in one\'s behavior, especially in difficult situations.</string>
     <string name="definition_183_selflessness">Concern more with the needs and wishes of others than with one\'s own.</string>
-    <string name="definition_184_sensitivity">The quality or condition of being sensitive.</string> // Could be better
+    <string name="definition_184_sensitivity">The ability to perceive and respond to the feelings and needs of oneself and others, often characterized by empathy, compassion, and understanding.</string>
     <string name="definition_185_serenity">The state of being calm, peaceful, and untroubled.</string>
     <string name="definition_186_service">The action of helping or doing work for someone.</string>
     <string name="definition_187_sharing">The use of a resource or space by different individuals or the elements of a group.</string>
@@ -212,7 +204,6 @@
     <string name="definition_190_sincerity">The quality of being free from pretense, deceit, or hypocrisy.</string>
     <string name="definition_191_skillfulness">The ability to do something well; expertise.</string>
     <string name="definition_192_solitude">The state or situation of being alone.</string>
-    // Same as above but for spirituality
     <string name="definition_193_spirituality">Belief in mysterious or supernatural connections or forces</string>
     <string name="definition_194_spontaneity">The condition of being spontaneous; spontaneous behavior or action.</string>
     <string name="definition_195_stability">The state of being stable.</string>
@@ -233,37 +224,29 @@
     <string name="definition_210_thoughtfulness">Showing consideration for the needs of other people.</string>
     <string name="definition_211_thrift">The quality of using money and other resources carefully and not wastefully.</string>
     <string name="definition_212_timelessness">Not affected by the passage of time or changes in fashion.</string>
-    <string name="definition_213_tolerance">The ability or willingness to tolerate something, in particular the existence of opinions or behavior that one does not necessarily agree with.</string> // Could be better
+    <string name="definition_213_tolerance">The ability to accept and respect the beliefs, opinions, and behaviors of others, even if they differ from one\'s own, often involving a commitment to fairness, open-mindedness, and non-judgmental attitudes.</string>
     <string name="definition_214_toughness">The quality of being strong enough to withstand adverse conditions or rough or careless handling.</string>
     <string name="definition_215_tradition">The transmission of customs or beliefs from generation to generation, or the fact of being passed on in this way.</string>
-    <string name="definition_216_tranquility">The quality or state of being tranquil; calm.</string> // Could be better
-    <string name="definition_217_transparency">The condition of being transparent.</string> // Could be better
-    //Same as above but for trust, trustworthiness, truth, understanding, uniqueness, unity, valor, victory, vigor, vision, vitality, wealth, welcoming, wholeness, wisdom, wonder, worthiness, zeal
+    <string name="definition_216_tranquility">A state of calmness, peacefulness, and serenity, often achieved through relaxation, meditation, or other forms of stress reduction.</string>
+    <string name="definition_217_transparency">The quality of being open, honest, and clear in one\'s communication and actions, often involving sharing information and being accountable for one\'s decisions.</string>
     <string name="definition_218_trust">Firm belief in the reliability, truth, ability, or strength of someone or something.</string>
     <string name="definition_219_trustworthiness">The ability to be relied on as honest or truthful.</string>
-    <string name="definition_220_truth">The quality or state of being true.</string> // Could be better
-    <string name="definition_221_understanding">The ability to understand something; comprehension.</string> // Could be better
+    <string name="definition_220_truth">The quality of being in accordance with fact, reality, or sincerity, often involving honesty, accuracy, and authenticity.</string>
+    <string name="definition_221_understanding">The ability to comprehend or grasp the nature, significance, or meaning of something, often involving empathy, insight, and knowledge.</string>
     <string name="definition_222_uniqueness">The quality of being the only one of its kind.</string>
-    <string name="definition_223_unity">The state of being united or joined as a whole.</string> // Could be better
+    <string name="definition_223_unity">The state of being united, joined, or connected, often involving a shared purpose, goal, or identity.</string>
     <string name="definition_224_valor">Great courage in the face of danger, especially in battle.</string>
     <string name="definition_225_victory">An act of defeating an enemy or opponent in a battle, game, or other competition.</string>
     <string name="definition_226_vigor">Physical strength and good health.</string>
     <string name="definition_227_vision">The faculty or state of being able to see.</string>
     <string name="definition_228_vitality">The state of being strong and active; energy.</string>
     <string name="definition_229_wealth">An abundance of valuable possessions or money.</string>
-    <string name="defintion_230_welcoming">An instance or manner of greeting someone.</string> // Could be better
+    <string name="definition_230_welcoming"> The act of making someone feel accepted, valued, and comfortable in a particular setting or community, often involving hospitality, kindness, and inclusiveness.</string>
     <string name="definition_231_wholeness">The state of forming a complete and harmonious whole; unity.</string>
     <string name="definition_232_wisdom">The quality of having experience, knowledge, and good judgment; the quality of being wise.</string>
     <string name="definition_233_wonder">A feeling of surprise mingled with admiration, caused by something beautiful, unexpected, unfamiliar, or inexplicable.</string>
     <string name="definition_234_worthiness">The quality of being good enough, suitable, or the right thing to do.</string>
     <string name="definition_235_zeal">Great energy or enthusiasm in pursuit of a cause or an objective.</string>
-
-    
-
-
-
-
-
 </resources>
 
 <!--    "Acceptance",-->
