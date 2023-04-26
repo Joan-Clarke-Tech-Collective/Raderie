@@ -42,7 +42,7 @@ class FirebaseAPI(val context: Context) {
               emitter.onSuccess(collection.toObjects(HumanValue::class.java))
             } else {
               //User has no saved deck
-              emitter.onSuccess(repo.freshDeck())
+              emitter.onSuccess(repo.freshDeckObject())
 //              emitter.onError(Exception(context.getString(R.string.no_deck_error)))
             }
           } else {

@@ -27,6 +27,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
 
   private val repo = ValueRepo()
   private var tempDeck = listOf<HumanValue>()
+
   private val remoteDeck = MutableLiveData<MutableList<HumanValue>>()
   val deck = MutableLiveData<MutableList<HumanValue>>()
   val option1 = MutableLiveData<HumanValue>()
@@ -79,12 +80,14 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
 
     if (local == 0L && remote == 0L) {
       Logger.d("Both DBs are empty")
-      tempDeck = repo.freshDeck()
+      tempDeck = repo.freshDeckObject()
       deck.value = tempDeck.toMutableList()
       pullTwo()
       updateDeck(SOURCE.LOCAL, tempDeck, time)
       updateDeck(SOURCE.REMOTE, tempDeck, time)
     }
+// TODO Add catch for if local and remote are same but not zero
+
     else if ( (local >= remote) ) {
       Logger.d("Local DB is newer")
       valueDao.getAllValues().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
@@ -168,11 +171,11 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     ) { local, remote ->
       Logger.d("Local: $local, Remote: $remote")
       if (local == 0L && remote == 0L) {
-        tempDeck = repo.freshDeck()
+        tempDeck = repo.freshDeckObject()
         deck.value = tempDeck.toMutableList()
         pullTwo()
-        updateDeck(SOURCE.LOCAL, repo.freshDeck(), time)
-        updateDeck(SOURCE.REMOTE, repo.freshDeck(), time)
+        updateDeck(SOURCE.LOCAL, repo.freshDeckObject(), time)
+        updateDeck(SOURCE.REMOTE, repo.freshDeckObject(), time)
       }
       else if (local == remote || local > remote) {
         Logger.d("Local DB is newer or identical")
@@ -242,7 +245,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
         DisposableSingleObserver<List<HumanValue>>() {
         override fun onSuccess(t: List<HumanValue>) {
           if (t.isEmpty()) {
-            emitter.onSuccess(repo.freshDeck())
+            emitter.onSuccess(repo.freshDeckObject())
           } else {
             emitter.onSuccess(t)
           }
