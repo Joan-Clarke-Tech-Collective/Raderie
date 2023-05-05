@@ -40,12 +40,13 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
   private val updatedLast = MutableLiveData<Long>()
   var lastUpdatedRemote = 0L
   private var lastUpdatedLocal = 0L
-  val menuClicked = MutableLiveData<MAIN_MENU>()
+  val menuClicked = MutableLiveData<MAINMENU>()
+  val toDefine = MutableLiveData<Int>()
 
   private val roomDb = Room.databaseBuilder(
     getApplication<Application>().applicationContext,
     MyValuesDatabase::class.java,
-    "values"
+    "testValuesDB"
   ).fallbackToDestructiveMigration().build()
   private val valueDao = roomDb.valueDao()
 
@@ -86,6 +87,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
       updateDeck(SOURCE.LOCAL, tempDeck, time)
       updateDeck(SOURCE.REMOTE, tempDeck, time)
     }
+
 // TODO Add catch for if local and remote are same but not zero
 
     else if ( (local >= remote) ) {
@@ -159,7 +161,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     }
   }
 
-  fun menuClicked(whichClicked: MAIN_MENU) {
+  fun menuClicked(whichClicked: MAINMENU) {
     menuClicked.value = whichClicked
   }
 
@@ -406,6 +408,22 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     }).addTo(compositeDisposable)
   }
 
+  fun onLongPress(outcome: OUTCOME): Boolean {
+    when (outcome) {
+      OUTCOME.TOP -> {
+        toDefine.value = option1.value?.id
+
+      }
+      OUTCOME.BOTTOM -> {
+        toDefine.value = option2.value?.id
+
+      }
+      OUTCOME.TIE -> {toDefine.value = -1}
+      OUTCOME.SYNONYMS -> {toDefine.value = -2}
+    }
+    return false
+  }
+
   fun removeFromDeck(hv: HumanValue): Boolean {
     return deck.value!!.remove(hv)
   }
@@ -429,7 +447,7 @@ enum class OUTCOME {
   SYNONYMS
 }
 
-enum class MAIN_MENU {
+enum class MAINMENU {
   RESULT,
   SHARE
 

@@ -25,7 +25,7 @@ class FirebaseAPI(val context: Context) {
   private val auth = Firebase.auth
   private val userRef = db.collection("users")
   private var docRef =
-    userRef.document(auth.currentUser?.uid.toString()).collection("deck")
+    userRef.document(auth.currentUser?.uid.toString()).collection("testDeck")
   private var friendsRef =
     userRef.document(auth.currentUser?.uid.toString()).collection("friendsList")
   private val repo = ValueRepo()
