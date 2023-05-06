@@ -2,7 +2,6 @@ package org.clarkecollective.raderie.ui.compare
 
 import android.app.Application
 import android.graphics.Color
-import androidx.databinding.ObservableField
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
@@ -143,6 +142,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
   override fun onCleared() {
     super.onCleared()
     compositeDisposable.clear()
+    firebaseAPI.dispose()
   }
 }
 

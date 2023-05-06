@@ -429,8 +429,9 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
   }
 
   override fun onCleared() {
-    compositeDisposable.clear()
     super.onCleared()
+    compositeDisposable.clear()
+    firebaseAPI.dispose()
   }
 }
 

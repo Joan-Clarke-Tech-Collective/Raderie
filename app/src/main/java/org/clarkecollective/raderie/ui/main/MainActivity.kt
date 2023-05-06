@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun startSharingActivity(){
-    val intent = Intent(this, ShareActivity::class.java)
+    val intent = ShareActivity.newIntent(this)
     startActivity(intent)
   }
 
@@ -403,10 +403,12 @@ class MainActivity : AppCompatActivity() {
       247 -> { return getString(R.string.definition_247_wonder) }
       248 -> { return getString(R.string.definition_248_worthiness) }
       249 -> { return getString(R.string.definition_249_zeal) }
-
       else -> { return "Error: No Definition"}
-
     }
+
+  override fun onDestroy() {
+    firebaseAPI.dispose()
+    super.onDestroy()
 
   }
 }

@@ -3,11 +3,8 @@ package org.clarkecollective.raderie.ui.share
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.databinding.BindingAdapter
@@ -77,7 +74,8 @@ class ShareActivity : AppCompatActivity() {
       }
       sendShareText()
     }
-    var sharedPreferences = getSharedPreferences("user-data", Context.MODE_PRIVATE)
+
+    val sharedPreferences = getSharedPreferences("user-data", Context.MODE_PRIVATE)
 
     viewModel.addedName.observe(this) {
       welcomeTV.text = getString(R.string.welcome_back, it)
@@ -128,6 +126,11 @@ class ShareActivity : AppCompatActivity() {
       d.cancel()
     }
     return dialog
+  }
+
+  override fun onDestroy() {
+    firebaseAPI.dispose()
+    super.onDestroy()
   }
 }
 

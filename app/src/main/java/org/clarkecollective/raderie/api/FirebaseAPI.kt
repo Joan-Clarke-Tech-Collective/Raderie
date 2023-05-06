@@ -270,4 +270,8 @@ class FirebaseAPI(val context: Context) {
       }).addTo(compositeDisposable)
     }
   }
+
+  fun dispose() {
+    compositeDisposable.dispose()
+  }
 }

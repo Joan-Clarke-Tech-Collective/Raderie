@@ -7,12 +7,10 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.orhanobut.logger.Logger
 import org.clarkecollective.raderie.BR
 import org.clarkecollective.raderie.models.HumanValue
 import org.clarkecollective.raderie.ui.compare.CompareViewModel
 import org.clarkecollective.raderie.ui.compare.Comparison
-import org.clarkecollective.raderie.ui.results.ResultsActivityViewModel
 
 class CompareRecyclerAdapter(private val vM: CompareViewModel, @LayoutRes private val layoutRes: Int): RecyclerView.Adapter<CompareRecyclerAdapter.CompareViewHolder>() {
 
