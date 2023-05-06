@@ -27,6 +27,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
 
   private val repo = ValueRepo()
   private var tempDeck = listOf<HumanValue>()
+
   private val remoteDeck = MutableLiveData<MutableList<HumanValue>>()
   val deck = MutableLiveData<MutableList<HumanValue>>()
   val option1 = MutableLiveData<HumanValue>()
@@ -39,12 +40,13 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
   private val updatedLast = MutableLiveData<Long>()
   var lastUpdatedRemote = 0L
   private var lastUpdatedLocal = 0L
-  val menuClicked = MutableLiveData<MAIN_MENU>()
+  val menuClicked = MutableLiveData<MAINMENU>()
+  val toDefine = MutableLiveData<Int>()
 
   private val roomDb = Room.databaseBuilder(
     getApplication<Application>().applicationContext,
     MyValuesDatabase::class.java,
-    "values"
+    "testValuesDB"
   ).fallbackToDestructiveMigration().build()
   private val valueDao = roomDb.valueDao()
 
@@ -79,12 +81,15 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
 
     if (local == 0L && remote == 0L) {
       Logger.d("Both DBs are empty")
-      tempDeck = repo.freshDeck()
+      tempDeck = repo.freshDeckObject()
       deck.value = tempDeck.toMutableList()
       pullTwo()
       updateDeck(SOURCE.LOCAL, tempDeck, time)
       updateDeck(SOURCE.REMOTE, tempDeck, time)
     }
+
+// TODO Add catch for if local and remote are same but not zero
+
     else if ( (local >= remote) ) {
       Logger.d("Local DB is newer")
       valueDao.getAllValues().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
@@ -156,7 +161,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     }
   }
 
-  fun menuClicked(whichClicked: MAIN_MENU) {
+  fun menuClicked(whichClicked: MAINMENU) {
     menuClicked.value = whichClicked
   }
 
@@ -168,11 +173,11 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     ) { local, remote ->
       Logger.d("Local: $local, Remote: $remote")
       if (local == 0L && remote == 0L) {
-        tempDeck = repo.freshDeck()
+        tempDeck = repo.freshDeckObject()
         deck.value = tempDeck.toMutableList()
         pullTwo()
-        updateDeck(SOURCE.LOCAL, repo.freshDeck(), time)
-        updateDeck(SOURCE.REMOTE, repo.freshDeck(), time)
+        updateDeck(SOURCE.LOCAL, repo.freshDeckObject(), time)
+        updateDeck(SOURCE.REMOTE, repo.freshDeckObject(), time)
       }
       else if (local == remote || local > remote) {
         Logger.d("Local DB is newer or identical")
@@ -242,7 +247,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
         DisposableSingleObserver<List<HumanValue>>() {
         override fun onSuccess(t: List<HumanValue>) {
           if (t.isEmpty()) {
-            emitter.onSuccess(repo.freshDeck())
+            emitter.onSuccess(repo.freshDeckObject())
           } else {
             emitter.onSuccess(t)
           }
@@ -403,6 +408,22 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     }).addTo(compositeDisposable)
   }
 
+  fun onLongPress(outcome: OUTCOME): Boolean {
+    when (outcome) {
+      OUTCOME.TOP -> {
+        toDefine.value = option1.value?.id
+
+      }
+      OUTCOME.BOTTOM -> {
+        toDefine.value = option2.value?.id
+
+      }
+      OUTCOME.TIE -> {toDefine.value = -1}
+      OUTCOME.SYNONYMS -> {toDefine.value = -2}
+    }
+    return false
+  }
+
   fun removeFromDeck(hv: HumanValue): Boolean {
     return deck.value!!.remove(hv)
   }
@@ -427,7 +448,7 @@ enum class OUTCOME {
   SYNONYMS
 }
 
-enum class MAIN_MENU {
+enum class MAINMENU {
   RESULT,
   SHARE
 
