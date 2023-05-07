@@ -15,6 +15,8 @@ class CompareActivity : AppCompatActivity() {
 
     private val viewModel: CompareViewModel by viewModels()
 
+    lateinit var binding : ActivityCompareBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_compare)
@@ -23,9 +25,18 @@ class CompareActivity : AppCompatActivity() {
         viewModel.startComparison(intent.getStringExtra("selectedFriendID") ?: "Error", intent.getStringExtra("selectedFriendName") ?: "Error" )
     }
     private fun setBinding() {
-        val binding: ActivityCompareBinding = DataBindingUtil.setContentView(this, R.layout.activity_compare)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_compare)
         binding.vm = viewModel
         binding.lifecycleOwner = this
+        setListeners()
+    }
+    private fun setListeners() {
+        viewModel.selectedItemPosition.observe(this) {
+            Logger.d("Selected item position changed: $it")
+        }
+        viewModel.selectedItemPosition.observe(this) {
+            binding.recyclerView.scrollToPosition(0)
+        }
     }
 }
 

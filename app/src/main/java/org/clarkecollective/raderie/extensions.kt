@@ -12,3 +12,5 @@ fun Throwable.log() {
     Logger.d(this.localizedMessage ?: "No Localized Message Found")
     Firebase.crashlytics.recordException(this)
 }
+
+fun String.capitalizeWords(): String = this.lowercase().split(" ").joinToString(" ") {it.replaceFirstChar { char -> if (char.isLowerCase()) char.titlecase() else char.toString() }}

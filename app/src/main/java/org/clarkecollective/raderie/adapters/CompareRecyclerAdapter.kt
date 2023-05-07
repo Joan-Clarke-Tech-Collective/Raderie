@@ -25,7 +25,6 @@ class CompareRecyclerAdapter(private val vM: CompareViewModel, @LayoutRes privat
     holder.bind(getObjFromPosition(position))
   }
 
-  // TODO Make the top of the list the label for the column
   private fun getObjFromPosition(position: Int): Comparison {
     return vM.compareLV.value?.get(position) ?: Comparison(-1, HumanValue(), HumanValue())
   }

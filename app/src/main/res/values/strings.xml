@@ -27,4 +27,16 @@
     <string name="friend_me">Hi!  Friend me over on Raderie.  We can compare values and start a conversation about what matters.  https://raderie.me/user/%s</string>
     <string name="tie_explanation">Click here if the values are equally important or unimportant to you</string>
     <string name="synonym_explanation">Click here if you consider the two words to be synonyms</string>
+    <string name="highest_delta">Wow, you both consider %1s to be a very positive trait!</string>
+    <string name="lowest_delta">Neither of you consider %1s to be a very positive trait!</string>
+    <string name="friend">Friend</string>
+    <string name="me">Me</string>
+    <string name="value">Value</string>
+    <string name="neutral">Neither of you seem to care much about %1s</string>
+    <string name="positive">You both seem to think highly of the value: %1s</string>
+    <string name="negative">Neither of you seem to think highly of %1s</string>
+    <string name="who_cares_more">%1s seems to care a more about %2s than %3s</string>
+    <string name="they_indifferent">You think highly of %1s, but %2s seems indifferent to it</string>
+    <string name="i_indifferent">%1s thinks highly of %2s, but you seem indifferent to it</string>
+    <string name="sort_by">Sort By:</string>
 </resources>

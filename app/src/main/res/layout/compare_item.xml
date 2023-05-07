@@ -18,9 +18,10 @@
             android:layout_height="wrap_content"
             android:text="@{comparison.friend.name}"
             android:textAlignment="center"
+            android:textAppearance="@style/vigaFont"
             android:textColor="@{comparison.colorDelta}"
-            app:layout_constraintEnd_toStartOf="@+id/friendCompareScoreTV"
-            app:layout_constraintStart_toEndOf="@+id/meCompareScoreTV"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/meCompareScoreTV"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Human Value" />
 
@@ -29,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{Integer.toString(comparison.me.rating)}"
+            android:textAppearance="@style/vigaFont"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="20" />
@@ -38,6 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{Integer.toString(comparison.friend.rating)}"
+            android:textAppearance="@style/vigaFont"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="30" />
