@@ -148,9 +148,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
        }
   }
   private fun calculateDeltas(sortBy: SORTBY): Pair<Comparison?, Comparison?> {
-    // TODO: account for no commonality
-
-    // TODO: Extract these string resources
+    // TODO: Account for no commonality
     // TODO: Refresh these factoid cards with button
 
     val topTwo = compareLV.value?.take(2)
