@@ -27,4 +27,9 @@
     <string name="friend_me">Hi!  Friend me over on Raderie.  We can compare values and start a conversation about what matters.  https://raderie.me/user/%s</string>
     <string name="tie_explanation">Click here if the values are equally important or unimportant to you</string>
     <string name="synonym_explanation">Click here if you consider the two words to be synonyms</string>
+    <string name="highest_delta">Wow, you both consider %1s to be a very positive trait!</string>
+    <string name="lowest_delta">Neither of you consider %1s to be a very positive trait!</string>
+    <string name="friend">Friend</string>
+    <string name="me">Me</string>
+    <string name="value">Value</string>
 </resources>

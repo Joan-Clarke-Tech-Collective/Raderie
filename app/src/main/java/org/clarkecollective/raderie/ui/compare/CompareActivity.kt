@@ -26,6 +26,12 @@ class CompareActivity : AppCompatActivity() {
         val binding: ActivityCompareBinding = DataBindingUtil.setContentView(this, R.layout.activity_compare)
         binding.vm = viewModel
         binding.lifecycleOwner = this
+        setListeners()
+    }
+    private fun setListeners() {
+        viewModel.selectedItemPosition.observe(this) {
+            Logger.d("Selected item position changed: $it")
+        }
     }
 }
 

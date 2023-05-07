@@ -116,6 +116,7 @@ class ShareActivity : AppCompatActivity() {
     startActivity(sendIntent)
   }
   private fun addFriendConfirmDialogue(newFriendUID: String): AlertDialog {
+    //TODO: Get friend name for request
     val dialog = AlertDialog.Builder(this@ShareActivity).create()
     dialog.setTitle("Add Friend?")
     dialog.setMessage("Do you want to add $newFriendUID to your friend list?")

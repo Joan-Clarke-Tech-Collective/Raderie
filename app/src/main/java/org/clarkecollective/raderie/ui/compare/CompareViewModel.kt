@@ -2,7 +2,12 @@ package org.clarkecollective.raderie.ui.compare
 
 import android.app.Application
 import android.graphics.Color
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import androidx.databinding.BindingAdapter
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
 import com.orhanobut.logger.Logger
@@ -15,6 +20,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.clarkecollective.raderie.R
 import org.clarkecollective.raderie.adapters.CompareRecyclerAdapter
 import org.clarkecollective.raderie.api.FirebaseAPI
+import org.clarkecollective.raderie.capitalizeWords
 import org.clarkecollective.raderie.databases.MyValuesDatabase
 import org.clarkecollective.raderie.log
 import org.clarkecollective.raderie.models.HumanValue
@@ -30,6 +36,12 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
   private val firebaseAPI: FirebaseAPI = FirebaseAPI(app.applicationContext)
   val compareTotal = MutableLiveData<String>()
   val compareLV = MutableLiveData<List<Comparison>>()
+  val highComparison: MutableLiveData<String> = MutableLiveData()
+  val lowComparison: MutableLiveData<String> = MutableLiveData()
+  val entries = enumValues<SORTBY>().toList()
+  val entryNames = entries.map { it.name.replace("_", " ") }
+  val selectedItemPosition = MutableLiveData<Int>()
+  val selectedItem = MutableLiveData<SORTBY>()
 
   private val roomDb = Room.databaseBuilder(
     getApplication<Application>().applicationContext,
@@ -40,7 +52,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
 
   fun startComparison(friendUUID: String, friendName: String) {
     Logger.d("Starting comparison")
-    friendNameLV.value = friendName
+    friendNameLV.value = friendName.capitalizeWords()
     fetch(friendUUID, friendName)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
@@ -54,6 +66,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
           myDeckLV.value = myDeck
           val commonality = findCommonality(t)
           compareLV.value = commonality.sortedBy { it.getDelta() }
+          //commonality.sortedBy { it.getDelta() }
           adapter.notifyItemRangeInserted(0, friendDeck.size)
           Logger.d("Commonality size: %s", commonality.size)
           compareTotal.value = "These users have " + commonality.size.toString() + " values in common"
@@ -80,6 +93,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
     val result = commonIDs.map { sharedID ->
       return@map Comparison(sharedID, friendDeck.find { it.id == sharedID }!!, myDeck.find { it.id == sharedID }!!)
     }
+    calculateDeltas(result)
     return result
   }
 
@@ -97,7 +111,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
   }
 
   // TODO: This is a duplicate of the same method in the DeckViewModel. Refactor to a common place
-  // TODO: Check name of friend
+  // TODO: Check name of friend for changes here
   private fun fetchJustFriend(friendUUID: String, friendName: String) : Single<List<HumanValue>> {
     Logger.d("Fetching friend")
     return Single.create {
@@ -136,8 +150,44 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
            }).addTo(compositeDisposable)
        }
   }
+  private fun calculateDeltas(results: List<Comparison>): Pair<Comparison?, Comparison?> {
+    val bothPositiveOrBothNegative = results.filter { (it.me.rating > 0 && it.friend.rating > 0) || (it.me.rating < 0 && it.friend.rating < 0) }
+    val highest = bothPositiveOrBothNegative.maxBy { it.getDelta() }
+    val lowest = bothPositiveOrBothNegative.minBy { it.getDelta() }
 
-  //TODO Find and display largest and smallest deltas
+    highComparison.value = getApplication<Application>().getString(R.string.highest_delta, highest.me.name)
+    lowComparison.value = getApplication<Application>().getString(R.string.lowest_delta, lowest.me.name)
+
+    return Pair(highest, lowest)
+  }
+
+  val selectedItemFromSpinner: LiveData<SORTBY> = MediatorLiveData<SORTBY>().apply {
+    addSource(selectedItemPosition) {
+      value = entries[it]
+    }
+  }
+
+  fun onSelectSortBy(position: Int) {
+    Logger.d("Selected position in VM: $position")
+    selectedItemPosition.value = position
+    selectedItem.value = entries[position]
+    sortValues(entries[position])
+  }
+
+  fun sortValues(sortBy: SORTBY) {
+    Logger.d("Sorting by: $sortBy")
+    when (sortBy) {
+      SORTBY.SIMILAR -> compareLV.value = compareLV.value?.sortedBy { it.getDelta() }
+      SORTBY.DIFFERENT -> compareLV.value = compareLV.value?.sortedByDescending { it.getDelta() }
+      SORTBY.I_LIKE -> compareLV.value = compareLV.value?.sortedByDescending { it.me.rating }
+      SORTBY.THEY_LIKE -> compareLV.value = compareLV.value?.sortedByDescending { it.friend.rating }
+      SORTBY.I_HATE -> compareLV.value = compareLV.value?.sortedBy { it.me.rating }
+      SORTBY.THEY_HATE -> compareLV.value = compareLV.value?.sortedBy { it.friend.rating }
+    }
+    // TODO: DiffUtil Callback or SortedList for data efficiency
+    // TODO: Recreate the card content based on the sort
+    adapter.notifyDataSetChanged()
+  }
 
   override fun onCleared() {
     super.onCleared()
@@ -150,8 +200,20 @@ enum class WHOSE {
   ME, FRIEND
 }
 
+enum class SORTBY {
+  SIMILAR, DIFFERENT, I_LIKE, THEY_LIKE, I_HATE, THEY_HATE
+}
+
 class Comparison(val id: Int, val friend: HumanValue, val me: HumanValue) {
   fun getDelta(): Int { return (max(friend.rating, me.rating) - min(friend.rating, me.rating)) }
   fun getColorDelta() = Color.argb(255, (255 * (getDelta() / 100)), (255 * (100 - getDelta()) / 100), 0)
+}
 
+// Spinner adapters
+@BindingAdapter("entries")
+fun Spinner.setEntries(entries: List<SORTBY>) {
+  //TODO Change these names
+  val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, entries.map { it.name.replace("_", " ") })
+  adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+  this.adapter = adapter
 }
