@@ -32,4 +32,11 @@
     <string name="friend">Friend</string>
     <string name="me">Me</string>
     <string name="value">Value</string>
+    <string name="neutral">Neither of you seem to care much about %1s</string>
+    <string name="positive">You both seem to think highly of the value: %1s</string>
+    <string name="negative">Neither of you seem to think highly of %1s</string>
+    <string name="who_cares_more">%1s seems to care a more about %2s than %3s</string>
+    <string name="they_indifferent">You think highly of %1s, but %2s seems indifferent to it</string>
+    <string name="i_indifferent">%1s thinks highly of %2s, but you seem indifferent to it</string>
+    <string name="sort_by">Sort By:</string>
 </resources>

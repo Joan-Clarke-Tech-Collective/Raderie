@@ -24,7 +24,7 @@
       <androidx.cardview.widget.CardView
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          android:layout_marginRight="3px"
+          android:layout_margin="3dp"
           android:layout_weight="1"
           app:cardBackgroundColor="#00FF0A">
 
@@ -33,7 +33,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#4CAF50"
-            android:text='@{vM.highComparison}'
+            android:textColor="@color/black"
+            android:text='@{vM.comparisonCard1}'
+            android:padding="2dp"
             android:textAlignment="center"
             tools:text="Wow, you really both value Humility" />
       </androidx.cardview.widget.CardView>
@@ -42,7 +44,7 @@
           android:id="@+id/cardView"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          android:layout_marginLeft="3px"
+          android:layout_margin="3dp"
           android:layout_weight="1"
           app:cardBackgroundColor="#E91E63">
 
@@ -50,7 +52,9 @@
             android:id="@+id/lowestDeltaTV"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text='@{vM.lowComparison}'
+            android:text='@{vM.comparisonCard2}'
+            android:padding="2dp"
+            android:textColor="@color/black"
             android:textAlignment="center"
             tools:text="Neither of you seem to value Unity" />
       </androidx.cardview.widget.CardView>
@@ -106,7 +110,8 @@
           android:id="@+id/friendCompareScoreTV"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:text="@string/friend"
+          android:text="@{vM.friendNameLV}"
+          tools:text="Friend Name"
           android:textAppearance="@style/vigaFont"
           android:textSize="24sp"
           app:layout_constraintEnd_toEndOf="parent"
@@ -121,7 +126,7 @@
         android:layout_marginStart="1dp"
         android:layout_marginTop="1dp"
         android:layout_marginEnd="1dp"
-        app:layout_constraintBottom_toTopOf="@+id/sortBySpinner"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@id/compareLabelCL"
@@ -130,16 +135,29 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
-    <Spinner
-        android:id="@+id/sortBySpinner"
+    <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:layout_weight="1"
-        android:entries="@{vM.entryNames}"
-        android:onItemSelected="@{(parent, view, position, id) -> vM.onSelectSortBy(position)}"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+      <TextView
+          android:id="@+id/textView"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_weight="3"
+          android:text="@string/sort_by"
+          android:textAppearance="@style/vigaFont" />
+
+      <Spinner
+          android:id="@+id/sortBySpinner"
+          customEntries="@{vM.entryNames}"
+          android:layout_width="wrap_content"
+          android:layout_height="32dp"
+          android:layout_weight="6"
+          android:onItemSelected="@{(parent, view, position, id) -> vM.onSelectSortBy(position)}" />
+    </LinearLayout>
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 

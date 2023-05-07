@@ -6,8 +6,6 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
 import com.orhanobut.logger.Logger
@@ -36,12 +34,12 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
   private val firebaseAPI: FirebaseAPI = FirebaseAPI(app.applicationContext)
   val compareTotal = MutableLiveData<String>()
   val compareLV = MutableLiveData<List<Comparison>>()
-  val highComparison: MutableLiveData<String> = MutableLiveData()
-  val lowComparison: MutableLiveData<String> = MutableLiveData()
-  val entries = enumValues<SORTBY>().toList()
+  val comparisonCard1: MutableLiveData<String> = MutableLiveData()
+  val comparisonCard2: MutableLiveData<String> = MutableLiveData()
+  private val entries = enumValues<SORTBY>().toList()
   val entryNames = entries.map { it.name.replace("_", " ") }
   val selectedItemPosition = MutableLiveData<Int>()
-  val selectedItem = MutableLiveData<SORTBY>()
+  private val selectedItem = MutableLiveData<SORTBY>()
 
   private val roomDb = Room.databaseBuilder(
     getApplication<Application>().applicationContext,
@@ -66,7 +64,7 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
           myDeckLV.value = myDeck
           val commonality = findCommonality(t)
           compareLV.value = commonality.sortedBy { it.getDelta() }
-          //commonality.sortedBy { it.getDelta() }
+          calculateDeltas(SORTBY.SIMILAR)
           adapter.notifyItemRangeInserted(0, friendDeck.size)
           Logger.d("Commonality size: %s", commonality.size)
           compareTotal.value = "These users have " + commonality.size.toString() + " values in common"
@@ -93,7 +91,6 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
     val result = commonIDs.map { sharedID ->
       return@map Comparison(sharedID, friendDeck.find { it.id == sharedID }!!, myDeck.find { it.id == sharedID }!!)
     }
-    calculateDeltas(result)
     return result
   }
 
@@ -150,20 +147,74 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
            }).addTo(compositeDisposable)
        }
   }
-  private fun calculateDeltas(results: List<Comparison>): Pair<Comparison?, Comparison?> {
-    val bothPositiveOrBothNegative = results.filter { (it.me.rating > 0 && it.friend.rating > 0) || (it.me.rating < 0 && it.friend.rating < 0) }
-    val highest = bothPositiveOrBothNegative.maxBy { it.getDelta() }
-    val lowest = bothPositiveOrBothNegative.minBy { it.getDelta() }
+  private fun calculateDeltas(sortBy: SORTBY): Pair<Comparison?, Comparison?> {
+    // TODO: account for no commonality
 
-    highComparison.value = getApplication<Application>().getString(R.string.highest_delta, highest.me.name)
-    lowComparison.value = getApplication<Application>().getString(R.string.lowest_delta, lowest.me.name)
+    // TODO: Extract these string resources
+    // TODO: Refresh these factoid cards with button
 
-    return Pair(highest, lowest)
+    val topTwo = compareLV.value?.take(2)
+
+    if (topTwo == null) {
+      Logger.e("No commonality")
+      return Pair(null, null)
+    }
+
+    comparisonCard1.value = cardString(topTwo[0], sortBy)
+    comparisonCard2.value = cardString(topTwo[1], sortBy)
+
+    return Pair(topTwo[0], topTwo[1])
   }
 
-  val selectedItemFromSpinner: LiveData<SORTBY> = MediatorLiveData<SORTBY>().apply {
-    addSource(selectedItemPosition) {
-      value = entries[it]
+  private fun cardString(comparison: Comparison, sortBy: SORTBY): String {
+    when (sortBy) {
+      SORTBY.SIMILAR -> {
+        return when {
+          comparison.me.rating > 0 -> { getApplication<Application>().getString(R.string.positive, comparison.me.name) }
+          comparison.me.rating < 0 -> { getApplication<Application>().getString(R.string.negative, comparison.me.name) }
+          else -> { getApplication<Application>().getString(R.string.neutral, comparison.me.name) }
+        }
+      }
+
+      SORTBY.DIFFERENT -> {
+        return when {
+          comparison.me.rating > comparison.friend.rating -> { getApplication<Application>().getString(R.string.who_cares_more,"You", comparison.me.name, friendNameLV.value ) }
+          comparison.me.rating < comparison.friend.rating -> { getApplication<Application>().getString(R.string.who_cares_more, friendNameLV.value, comparison.me.name, "you") }
+          else -> { getApplication<Application>().getString(R.string.neutral, comparison.me.name) }
+        }
+      }
+
+      SORTBY.I_LIKE -> {
+        return when {
+          comparison.friend.rating > 0 -> { getApplication<Application>().getString(R.string.positive, comparison.me.name) }
+          comparison.friend.rating < 0 -> { getApplication<Application>().getString(R.string.who_cares_more,"You", comparison.me.name, friendNameLV.value) }
+          else -> { getApplication<Application>().getString(R.string.they_indifferent, comparison.me.name, friendNameLV.value) }
+        }
+      }
+
+      SORTBY.THEY_LIKE -> {
+        return when {
+          comparison.me.rating > 0 -> { getApplication<Application>().getString(R.string.positive, comparison.me.name) }
+          comparison.me.rating < 0 -> { getApplication<Application>().getString(R.string.who_cares_more, friendNameLV.value, comparison.me.name, "you") }
+          else -> { getApplication<Application>().getString(R.string.i_indifferent, friendNameLV.value, comparison.me.name) }
+        }
+      }
+
+      SORTBY.I_HATE -> {
+        return when {
+          comparison.friend.rating > 0 -> { getApplication<Application>().getString(R.string.who_cares_more,"You", comparison.me.name, friendNameLV.value) }
+          comparison.friend.rating < 0 -> { getApplication<Application>().getString(R.string.negative, comparison.me.name) }
+          else -> { getApplication<Application>().getString(R.string.they_indifferent, comparison.me.name, friendNameLV) }
+        }
+      }
+
+      SORTBY.THEY_HATE -> {
+        return when {
+          comparison.me.rating > 0 -> { getApplication<Application>().getString(R.string.who_cares_more, friendNameLV.value, comparison.me.name, "you") }
+          comparison.me.rating < 0 -> { getApplication<Application>().getString(R.string.negative, comparison.me.name) }
+          else -> { getApplication<Application>().getString(R.string.i_indifferent, friendNameLV.value, comparison.me.name) }
+        }
+      }
     }
   }
 
@@ -174,16 +225,17 @@ class CompareViewModel(app: Application): AndroidViewModel(app) {
     sortValues(entries[position])
   }
 
-  fun sortValues(sortBy: SORTBY) {
+  private fun sortValues(sortBy: SORTBY) {
     Logger.d("Sorting by: $sortBy")
     when (sortBy) {
-      SORTBY.SIMILAR -> compareLV.value = compareLV.value?.sortedBy { it.getDelta() }
+      SORTBY.SIMILAR -> { compareLV.value = compareLV.value?.sortedBy { it.getDelta() } }
       SORTBY.DIFFERENT -> compareLV.value = compareLV.value?.sortedByDescending { it.getDelta() }
       SORTBY.I_LIKE -> compareLV.value = compareLV.value?.sortedByDescending { it.me.rating }
       SORTBY.THEY_LIKE -> compareLV.value = compareLV.value?.sortedByDescending { it.friend.rating }
       SORTBY.I_HATE -> compareLV.value = compareLV.value?.sortedBy { it.me.rating }
       SORTBY.THEY_HATE -> compareLV.value = compareLV.value?.sortedBy { it.friend.rating }
     }
+    calculateDeltas(sortBy)
     // TODO: DiffUtil Callback or SortedList for data efficiency
     // TODO: Recreate the card content based on the sort
     adapter.notifyDataSetChanged()
@@ -210,10 +262,10 @@ class Comparison(val id: Int, val friend: HumanValue, val me: HumanValue) {
 }
 
 // Spinner adapters
-@BindingAdapter("entries")
-fun Spinner.setEntries(entries: List<SORTBY>) {
+@BindingAdapter("customEntries")
+fun Spinner.setEntries(entries: List<String>) {
   //TODO Change these names
-  val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, entries.map { it.name.replace("_", " ") })
-  adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+  val adapter = ArrayAdapter(context, R.layout.custom_sort_spinner_item, entries)
+  adapter.setDropDownViewResource(R.layout.custom_sort_spinner_item)
   this.adapter = adapter
 }
