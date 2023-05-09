@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 data class HumanValue(
     @PrimaryKey var id: Int = 0,
     @ColumnInfo(name = "name") val name: String? = "error",
+    @ColumnInfo(name = "priority") val priority: Int = 9,
     @ColumnInfo(name = "games_played") var gamesPlayed: Int = 0,
     @ColumnInfo(name = "games_won") var gamesWon: Int = 0,
     @ColumnInfo(name = "games_lost") var gamesLost: Int = 0,
