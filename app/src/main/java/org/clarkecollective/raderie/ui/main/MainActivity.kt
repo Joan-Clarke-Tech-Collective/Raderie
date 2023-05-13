@@ -115,6 +115,7 @@ class MainActivity : AppCompatActivity() {
 
   private fun startResultsActivity() {
     val arrayDeck = mainActivityViewModel.deck.value?.let { ArrayList<HumanValue>(it) }
+    Logger.d(arrayDeck)
     val intent = arrayDeck?.let { ResultsActivity.newIntent(this, it) }
     startActivity(intent)
   }
@@ -130,7 +131,7 @@ class MainActivity : AppCompatActivity() {
       } else {
         Toast.makeText(applicationContext, "Deleted: " + hv2.name, Toast.LENGTH_SHORT).show()
       }
-      mainActivityViewModel.pullTwo()
+//      mainActivityViewModel.pullTwo()
     }
     dialog.setButton(AlertDialog.BUTTON_NEGATIVE, hv2!!.name) { _, _ ->
       val success = mainActivityViewModel.removeFromDeck(hv1)
@@ -139,7 +140,7 @@ class MainActivity : AppCompatActivity() {
       } else {
         Toast.makeText(applicationContext, "Deleted: " + hv1.name, Toast.LENGTH_SHORT).show()
       }
-      mainActivityViewModel.pullTwo()
+//      mainActivityViewModel.pullTwo()
     }
     dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Cancel") { d, _ ->
       d.cancel()

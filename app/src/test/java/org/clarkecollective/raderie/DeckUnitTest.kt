@@ -1,5 +1,13 @@
 package org.clarkecollective.raderie
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.clarkecollective.raderie.models.HumanValue
 import org.junit.Test
 
@@ -10,54 +18,55 @@ import org.junit.Assert.*
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
+
 class DeckUnitTest {
   val repo = ValueRepo()
 
-  val localList = listOf(
-    HumanValue(id = 0, gamesPlayed=7, gamesWon=4 ),
-    HumanValue(id = 1, gamesPlayed=1, gamesWon=0 ),
-    HumanValue(id = 2, gamesPlayed=6, gamesWon=3 ),
-    HumanValue(id = 3, gamesPlayed=12, gamesWon=12)
-  )
-
-  val remoteList = listOf(
-    HumanValue(id = 0, gamesPlayed=12, gamesWon=7),
-    HumanValue(id = 1, gamesPlayed=1, gamesWon=0 ),
-    HumanValue(id = 2, gamesPlayed=6, gamesWon=3),
-    HumanValue(id = 3, gamesPlayed=12, gamesWon=12),
-    HumanValue(id = 4, gamesPlayed=0, gamesWon=0)
-  )
-
-  @Test
-  fun listMerge() {
-    val mergedList = (localList + remoteList)
-      .groupBy { humanValue -> humanValue.id }
-      .values.map { it.maxByOrNull { it.gamesPlayed }!! }
-
-    println(mergedList)
-    assertEquals(0, (mergedList.size - mergedList.distinctBy { it.id }.size))
-    assertEquals(5, mergedList.size)
+  private fun runGame(list: List<HumanValue>): List<HumanValue> {
+    val drawn = repo.drawTwo(list)
+    list.find { it.id == drawn[0].id }?.let {
+      println("Winner: ${it.name}")
+      it.gamesPlayed++
+      it.gamesWon++
+      println("Winner: $it")
+    }
+    list.find { it.id == drawn[1].id }?.let {
+      it.gamesPlayed++
+      it.gamesLost++
+      println("Loser: $it")
+    }
+    return list
   }
 
-//  fun drawTwoAlgo1(deck: List<HumanValue>, value1: HumanValue, value2: HumanValue): Pair<HumanValue, HumanValue> {
-//    deck.filter { it.id == value1.id }[0].gamesPlayed++
-//    deck.filter { it.id == value2.id }[0].gamesPlayed++
-//
-//    if (value1.gamesPlayed > 5) {
-//    var v1 = deck.random()
-//    }
-//    else { var v1 = value1 }
-//    var v2 = deck.random()
-//
-//    return Pair(v1, v2)
-//  }
-//
-//  @Test
-//  fun playForMaxGamesPlayed() {
-//    val deck = repo.freshDeck()
-//    var v1 = deck[0]
-//    var v2 = deck[1]
-//
-//    drawTwoAlgo1(deck, v1, v2)
-//  }
+  @Test
+  fun testDeck() {
+    var userOne = repo.freshDeckObject()
+    var userTwo = repo.freshDeckObject()
+    runBlocking {
+      (0..50).map {
+        async {
+          println("Ran $it games")
+          userOne = runGame(userOne) as ArrayList<HumanValue>
+        }
+         async {
+           userTwo = runGame(userTwo) as ArrayList<HumanValue>
+         }
+
+      }.awaitAll()
+
+
+      println("Starting job 2")
+      val existing1 = userOne.filter { it.gamesPlayed > 0 }.map { it.id }
+      val existing2 = userTwo.filter { it.gamesPlayed > 0 }.map { it.id }
+      val mutual = existing1.intersect(existing2.toSet())
+      println(mutual.size)
+      println("User 1: $userOne")
+      println("User 1: $userTwo")
+
+      assertTrue(existing1.isNotEmpty())
+      assertTrue(existing2.isNotEmpty())
+      assertTrue(mutual.isNotEmpty())
+      assertNotEquals(userOne, userTwo)
+    }
+  }
 }

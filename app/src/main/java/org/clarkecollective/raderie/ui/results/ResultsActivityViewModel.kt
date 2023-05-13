@@ -23,5 +23,4 @@ class ResultsActivityViewModel(application: Application): AndroidViewModel(appli
             it.gamesPlayed > 0
         }.toMutableList()
 }
-
 }

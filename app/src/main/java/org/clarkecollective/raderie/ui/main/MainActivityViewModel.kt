@@ -84,6 +84,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
       tempDeck = repo.freshDeckObject()
       deck.value = tempDeck.toMutableList()
       pullTwo()
+//      pullTwoLessRandomly()
       updateDeck(SOURCE.LOCAL, tempDeck, time)
       updateDeck(SOURCE.REMOTE, tempDeck, time)
     }
@@ -99,6 +100,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
             tempDeck = t
             deck.value = t.toMutableList()
             pullTwo()
+//            pullTwoLessRandomly()
             updateDeck(SOURCE.LOCAL, t, time)
           }
 
@@ -116,6 +118,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
             tempDeck = t
             deck.value = t.toMutableList()
             pullTwo()
+//            pullTwoLessRandomly()
             updateDeck(SOURCE.LOCAL, t, time)
           }
 
@@ -176,6 +179,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
         tempDeck = repo.freshDeckObject()
         deck.value = tempDeck.toMutableList()
         pullTwo()
+//        pullTwoLessRandomly()
         updateDeck(SOURCE.LOCAL, repo.freshDeckObject(), time)
         updateDeck(SOURCE.REMOTE, repo.freshDeckObject(), time)
       }
@@ -187,6 +191,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
             tempDeck = t
             deck.value = t.toMutableList()
             pullTwo()
+//            pullTwoLessRandomly()
             updateDeck(SOURCE.REMOTE, t, time)
           }
 
@@ -202,6 +207,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
             tempDeck = t
             deck.value = t.toMutableList()
             pullTwo()
+//            pullTwoLessRandomly()
             valueDao.insertAllValues(t).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribeWith(object :
               DisposableCompletableObserver() {
               override fun onComplete() {
@@ -354,6 +360,17 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     }
   }
 
+  fun pullTwoLessRandomly() {
+    if (deck.value != null) {
+      val splitList = deck.value?.groupBy { it.priority }
+      val average = splitList?.values?.map { list -> list.map { value -> value.gamesPlayed }.average() }?.average()
+      val topHalf = deck.value?.filter { it.gamesPlayed <= average!! }?.sortedBy { it.priority }?.chunked(2)
+      val myTwo = topHalf?.flatten()?.shuffled()?.take(2)
+      option1.value = myTwo?.get(0)
+      option2.value = myTwo?.get(1)
+      gameOn.value = true }
+  }
+
   fun decided(outcome: OUTCOME) {
     when (outcome) {
       OUTCOME.TOP -> {
@@ -391,6 +408,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     }
     onlineRankings(winner, loser)
     pullTwo()
+//    pullTwoLessRandomly()
   }
 
   private fun onlineRankings(winner: HumanValue, loser: HumanValue) {
@@ -410,16 +428,10 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
 
   fun onLongPress(outcome: OUTCOME): Boolean {
     when (outcome) {
-      OUTCOME.TOP -> {
-        toDefine.value = option1.value?.id
-
-      }
-      OUTCOME.BOTTOM -> {
-        toDefine.value = option2.value?.id
-
-      }
-      OUTCOME.TIE -> {toDefine.value = -1}
-      OUTCOME.SYNONYMS -> {toDefine.value = -2}
+      OUTCOME.TOP -> { toDefine.value = option1.value?.id }
+      OUTCOME.BOTTOM -> { toDefine.value = option2.value?.id }
+      OUTCOME.TIE -> { toDefine.value = -1 }
+      OUTCOME.SYNONYMS -> { toDefine.value = -2 }
     }
     return false
   }
@@ -451,5 +463,4 @@ enum class OUTCOME {
 enum class MAINMENU {
   RESULT,
   SHARE
-
 }
