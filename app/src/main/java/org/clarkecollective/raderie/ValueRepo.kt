@@ -5,9 +5,12 @@ import org.clarkecollective.raderie.models.HumanValue
 
 class ValueRepo {
 
-  fun freshDeckObject() = hvObjectList
+  fun freshDeckObject(): ArrayList<HumanValue> { val rv = arrayListOf<HumanValue>()
+    rv.addAll(hvObjectList)
+    return rv
+  }
 
-  private val hvObjectList = arrayListOf (
+  val hvObjectList = arrayListOf (
     HumanValue(0, "acceptance", 0),
     HumanValue(1, "accomplishment", 1),
     HumanValue(2, "accountability", 1),
@@ -272,7 +275,7 @@ class ValueRepo {
     val resultList = mutableListOf<HumanValue>()
     val splitList = valueList.sortedBy { it.gamesPlayed }.chunked(valueList.size / 3)
     resultList.add(splitList[1].random())
-    val coinFlip = listOf<Int>(0, 1).random()
+    val coinFlip = listOf(0, 1).random()
     if (coinFlip == 0) {
       resultList.add(splitList[0].random())
     } else {

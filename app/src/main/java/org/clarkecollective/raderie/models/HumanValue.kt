@@ -14,7 +14,8 @@ data class HumanValue(
     @ColumnInfo(name = "games_lost") var gamesLost: Int = 0,
     @ColumnInfo(name = "games_tied") var gamesTied: Int = 0,
     @ColumnInfo(name = "rating") var rating: Int = 0,
-    @ColumnInfo(name = "k_factor") var kFactor: Double = 0.0)
+    @ColumnInfo(name = "k_factor") var kFactor: Double = 0.0,
+    @ColumnInfo(name = "removed") var removed: Boolean = false)
     :java.io.Serializable {
     companion object {
         private const val serialVersionUID = 20221128L

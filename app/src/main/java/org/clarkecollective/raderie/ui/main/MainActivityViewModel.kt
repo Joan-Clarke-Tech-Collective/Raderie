@@ -46,7 +46,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
   private val roomDb = Room.databaseBuilder(
     getApplication<Application>().applicationContext,
     MyValuesDatabase::class.java,
-    "testValuesDB"
+    "testValuesDB1"
   ).fallbackToDestructiveMigration().build()
   private val valueDao = roomDb.valueDao()
 
@@ -60,7 +60,6 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
       override fun onError(e: Throwable) {
         e.log()
       }
-
     }).addTo(compositeDisposable)
   }
 
@@ -73,10 +72,8 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
   }
 
   private fun compareTimes(map: Map<SOURCE, Long>) {
-
     val remote = map[SOURCE.REMOTE] ?: 0L
     val local = map[SOURCE.LOCAL] ?: 0L
-
     val time = System.currentTimeMillis()
 
     if (local == 0L && remote == 0L) {
@@ -137,6 +134,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
           override fun onComplete() {
             Logger.d("Local DB updated")
             setLocalUpdatedLast(time)
+            firebaseAPI.setLastUpdated(time)
           }
 
           override fun onError(e: Throwable) {
@@ -183,7 +181,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
         updateDeck(SOURCE.LOCAL, repo.freshDeckObject(), time)
         updateDeck(SOURCE.REMOTE, repo.freshDeckObject(), time)
       }
-      else if (local == remote || local > remote) {
+      else if (local >= remote) {
         Logger.d("Local DB is newer or identical")
         valueDao.getAllValues().subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribeWith(object :
           DisposableSingleObserver<List<HumanValue>>() {
@@ -193,6 +191,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
             pullTwo()
 //            pullTwoLessRandomly()
             updateDeck(SOURCE.REMOTE, t, time)
+
           }
 
           override fun onError(e: Throwable) {
