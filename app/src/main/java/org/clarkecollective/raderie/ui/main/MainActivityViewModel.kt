@@ -46,7 +46,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
   private val roomDb = Room.databaseBuilder(
     getApplication<Application>().applicationContext,
     MyValuesDatabase::class.java,
-    "testValuesDB1"
+    getApplication<Application>().getString(R.string.databaseInUse)
   ).fallbackToDestructiveMigration().build()
   private val valueDao = roomDb.valueDao()
 
@@ -80,8 +80,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
       Logger.d("Both DBs are empty")
       tempDeck = repo.freshDeckObject()
       deck.value = tempDeck.toMutableList()
-      pullTwo()
-//      pullTwoLessRandomly()
+      pullTwoLessRandomly()
       updateDeck(SOURCE.LOCAL, tempDeck, time)
       updateDeck(SOURCE.REMOTE, tempDeck, time)
     }
@@ -96,8 +95,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
           override fun onSuccess(t: List<HumanValue>) {
             tempDeck = t
             deck.value = t.toMutableList()
-            pullTwo()
-//            pullTwoLessRandomly()
+            pullTwoLessRandomly()
             updateDeck(SOURCE.LOCAL, t, time)
           }
 
@@ -114,8 +112,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
           override fun onSuccess(t: List<HumanValue>) {
             tempDeck = t
             deck.value = t.toMutableList()
-            pullTwo()
-//            pullTwoLessRandomly()
+            pullTwoLessRandomly()
             updateDeck(SOURCE.LOCAL, t, time)
           }
 
@@ -176,8 +173,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
       if (local == 0L && remote == 0L) {
         tempDeck = repo.freshDeckObject()
         deck.value = tempDeck.toMutableList()
-        pullTwo()
-//        pullTwoLessRandomly()
+        pullTwoLessRandomly()
         updateDeck(SOURCE.LOCAL, repo.freshDeckObject(), time)
         updateDeck(SOURCE.REMOTE, repo.freshDeckObject(), time)
       }
@@ -188,8 +184,8 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
           override fun onSuccess(t: List<HumanValue>) {
             tempDeck = t
             deck.value = t.toMutableList()
-            pullTwo()
-//            pullTwoLessRandomly()
+//            pullTwo()
+            pullTwoLessRandomly()
             updateDeck(SOURCE.REMOTE, t, time)
 
           }
@@ -205,8 +201,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
           override fun onSuccess(t: List<HumanValue>) {
             tempDeck = t
             deck.value = t.toMutableList()
-            pullTwo()
-//            pullTwoLessRandomly()
+            pullTwoLessRandomly()
             valueDao.insertAllValues(t).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribeWith(object :
               DisposableCompletableObserver() {
               override fun onComplete() {
@@ -341,33 +336,10 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     }
   }
 
-  fun pullTwo() {
-    // TODO: pull the two less randomly
-    if (deck.value != null) {
-      val splitList = deck.value?.sortedBy { it.gamesPlayed }!!.chunked(deck.value!!.size / 3)
-      option1.value = splitList[1].random()
-      if (higher) {
-        option2.value = splitList[0].random()
-        higher = false
-      } else {
-        val merged = splitList[2] + splitList.last()
-        option2.value = merged.random()
-        higher = true
-      }
-      gameOn.value = true
-      Logger.d("Value 1: %s, Value 2: %s", option1.value!!.name, option2.value!!.name)
-    }
-  }
-
   fun pullTwoLessRandomly() {
-    if (deck.value != null) {
-      val splitList = deck.value?.groupBy { it.priority }
-      val average = splitList?.values?.map { list -> list.map { value -> value.gamesPlayed }.average() }?.average()
-      val topHalf = deck.value?.filter { it.gamesPlayed <= average!! }?.sortedBy { it.priority }?.chunked(2)
-      val myTwo = topHalf?.flatten()?.shuffled()?.take(2)
-      option1.value = myTwo?.get(0)
-      option2.value = myTwo?.get(1)
-      gameOn.value = true }
+    val twoCards = repo.drawTwo(deck.value!!)
+    option1.value = twoCards[0]
+    option2.value = twoCards[1]
   }
 
   fun decided(outcome: OUTCOME) {
@@ -406,8 +378,7 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
       it.rating = newResult.second
     }
     onlineRankings(winner, loser)
-    pullTwo()
-//    pullTwoLessRandomly()
+    pullTwoLessRandomly()
   }
 
   private fun onlineRankings(winner: HumanValue, loser: HumanValue) {

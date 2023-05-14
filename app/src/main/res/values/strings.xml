@@ -39,4 +39,6 @@
     <string name="they_indifferent">You think highly of %1s, but %2s seems indifferent to it</string>
     <string name="i_indifferent">%1s thinks highly of %2s, but you seem indifferent to it</string>
     <string name="sort_by">Sort By:</string>
+    <string name="databaseInUse">testValuesDB1</string>
+    <string name="testvaluesdb1">testValuesDB1</string>
 </resources>
