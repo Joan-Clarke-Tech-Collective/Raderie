@@ -125,7 +125,7 @@ class FirebaseAPI(val context: Context) {
     }
   }
 
-  fun mergeMyDeck(deck: List<HumanValue>, updateTime: Long): Observable<Int> {
+  fun mergeMyDeck(deck: List<HumanValue>): Observable<Int> {
     return Observable.create { emitter ->
       deck.forEachIndexed { index, humanValue ->
         docRef.document(humanValue.id.toString()).set(humanValue).addOnCompleteListener {
@@ -137,7 +137,7 @@ class FirebaseAPI(val context: Context) {
           }
         }
       }
-      updateTimestamp(updateTime).subscribe()
+      emitter.onComplete()
     }
   }
 
