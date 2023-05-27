@@ -40,12 +40,10 @@ class ResultsActivity : AppCompatActivity() {
 
   private val compositeDisposable = CompositeDisposable()
 
-
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    roomDb = Room.databaseBuilder(baseContext, MyValuesDatabase::class.java, "values").fallbackToDestructiveMigration().build()
+    roomDb = Room.databaseBuilder(baseContext, MyValuesDatabase::class.java, getString(R.string.databaseInUse)).fallbackToDestructiveMigration().build()
     valueDao = roomDb.valueDao()
 
     valueDao.getAllValues().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribeWith(object : DisposableSingleObserver<List<HumanValue>>() {

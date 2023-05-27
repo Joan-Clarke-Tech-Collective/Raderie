@@ -8,12 +8,14 @@ import androidx.room.PrimaryKey
 data class HumanValue(
     @PrimaryKey var id: Int = 0,
     @ColumnInfo(name = "name") val name: String? = "error",
+    @ColumnInfo(name = "priority") val priority: Int = 9,
     @ColumnInfo(name = "games_played") var gamesPlayed: Int = 0,
     @ColumnInfo(name = "games_won") var gamesWon: Int = 0,
     @ColumnInfo(name = "games_lost") var gamesLost: Int = 0,
     @ColumnInfo(name = "games_tied") var gamesTied: Int = 0,
     @ColumnInfo(name = "rating") var rating: Int = 0,
-    @ColumnInfo(name = "k_factor") var kFactor: Double = 0.0)
+    @ColumnInfo(name = "k_factor") var kFactor: Double = 0.0,
+    @ColumnInfo(name = "removed") var removed: Boolean = false)
     :java.io.Serializable {
     companion object {
         private const val serialVersionUID = 20221128L

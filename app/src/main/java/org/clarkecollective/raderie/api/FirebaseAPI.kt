@@ -25,7 +25,7 @@ class FirebaseAPI(val context: Context) {
   private val auth = Firebase.auth
   private val userRef = db.collection("users")
   private var docRef =
-    userRef.document(auth.currentUser?.uid.toString()).collection("testDeck")
+    userRef.document(auth.currentUser?.uid.toString()).collection("testDeck1")
   private var friendsRef =
     userRef.document(auth.currentUser?.uid.toString()).collection("friendsList")
   private val repo = ValueRepo()
@@ -43,7 +43,6 @@ class FirebaseAPI(val context: Context) {
             } else {
               //User has no saved deck
               emitter.onSuccess(repo.freshDeckObject())
-//              emitter.onError(Exception(context.getString(R.string.no_deck_error)))
             }
           } else {
             // There is no user in the DB
@@ -114,7 +113,19 @@ class FirebaseAPI(val context: Context) {
     }
   }
 
-  fun mergeMyDeck(deck: List<HumanValue>, updateTime: Long): Observable<Int> {
+  fun setLastUpdated(time: Long): Completable {
+    return Completable.create { emitter ->
+      userRef.document(auth.currentUser?.uid.toString()).update("lastUpdate", time).addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+          emitter.onComplete()
+        } else {
+          emitter.onError(Throwable(task.exception!!.message))
+        }
+      }
+    }
+  }
+
+  fun mergeMyDeck(deck: List<HumanValue>): Observable<Int> {
     return Observable.create { emitter ->
       deck.forEachIndexed { index, humanValue ->
         docRef.document(humanValue.id.toString()).set(humanValue).addOnCompleteListener {
@@ -126,7 +137,7 @@ class FirebaseAPI(val context: Context) {
           }
         }
       }
-      updateTimestamp(updateTime).subscribe()
+      emitter.onComplete()
     }
   }
 

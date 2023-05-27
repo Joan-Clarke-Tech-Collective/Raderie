@@ -9,13 +9,12 @@ import org.clarkecollective.raderie.R
 import org.clarkecollective.raderie.adapters.ResultsRecyclerAdapter
 
 class ResultsActivityViewModel(application: Application): AndroidViewModel(application) {
-//    val deck = MutableLiveData<MutableList<HumanValue>>()
     val adapter = ResultsRecyclerAdapter(this, R.layout.result_item)
     val meaningfulDeck = MutableLiveData<List<HumanValue>>()
 
     fun setDeck(usedDeck: ArrayList<HumanValue>) {
         meaningfulDeck.value = onlyMeaningfulResults(usedDeck)
-        Logger.d("Meaningful deck size: " + meaningfulDeck.value?.size)
+        Logger.d("Deck Size: ${usedDeck.size}, Meaningful deck size: ${(meaningfulDeck.value as MutableList<HumanValue>).size}")
         adapter.notifyItemRangeInserted(0, meaningfulDeck.value?.size ?: 0)
     }
     private fun onlyMeaningfulResults(results: List<HumanValue>): MutableList<HumanValue> {
@@ -23,5 +22,4 @@ class ResultsActivityViewModel(application: Application): AndroidViewModel(appli
             it.gamesPlayed > 0
         }.toMutableList()
 }
-
 }

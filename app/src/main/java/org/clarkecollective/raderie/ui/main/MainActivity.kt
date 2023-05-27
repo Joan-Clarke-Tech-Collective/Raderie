@@ -1,6 +1,8 @@
 package org.clarkecollective.raderie.ui.main
 
 import android.app.AlertDialog
+import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -14,14 +16,22 @@ import com.google.firebase.auth.FirebaseUser
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleObserver
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.addTo
+import io.reactivex.rxjava3.observers.DisposableCompletableObserver
+import io.reactivex.rxjava3.observers.DisposableObserver
+import io.reactivex.rxjava3.observers.DisposableSingleObserver
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.clarkecollective.raderie.R
+import org.clarkecollective.raderie.ValueRepo
 import org.clarkecollective.raderie.api.FirebaseAPI
 import org.clarkecollective.raderie.daos.ValueDao
 import org.clarkecollective.raderie.databases.MyValuesDatabase
 import org.clarkecollective.raderie.databinding.ActivityMainBinding
+import org.clarkecollective.raderie.log
 import org.clarkecollective.raderie.models.HumanValue
 import org.clarkecollective.raderie.toast
 import org.clarkecollective.raderie.ui.results.ResultsActivity
@@ -31,6 +41,8 @@ class MainActivity : AppCompatActivity() {
   private val mainActivityViewModel: MainActivityViewModel by viewModels()
   private lateinit var valueDao: ValueDao
   private lateinit var firebaseAPI: FirebaseAPI
+  private val compositeDisposable = CompositeDisposable()
+  private val repo = ValueRepo()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -38,31 +50,159 @@ class MainActivity : AppCompatActivity() {
     firebaseAPI = FirebaseAPI(applicationContext)
 
     valueDao =
-      Room.databaseBuilder(applicationContext, MyValuesDatabase::class.java, "test-db").build()
+      Room.databaseBuilder(applicationContext, MyValuesDatabase::class.java, getString(R.string.databaseInUse)).build()
         .valueDao()
 
-    Logger.d("Files dir: %s", filesDir)
-
     firebaseAPI.logInAndReturnUser().subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread()).subscribe(object : SingleObserver<FirebaseUser> {
+      .observeOn(AndroidSchedulers.mainThread()).subscribe(object : DisposableSingleObserver<FirebaseUser>() {
         override fun onSuccess(t: FirebaseUser) {
-          Logger.d("Login successful")
-          Logger.d("User ID: ${t.uid}")
-          mainActivityViewModel.startGame()
-        }
+//          mainActivityViewModel.startGame()
+          getTimes().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribeWith(object : DisposableSingleObserver<Map<SOURCE, Long>>() {
+            override fun onSuccess(t: Map<SOURCE, Long>) {
+              Logger.d("Got Times: $t")
+              compareTimes(t)
+            }
 
-        override fun onSubscribe(d: Disposable) {
-          Logger.d("Subscribed")
-        }
+            override fun onError(e: Throwable) { e.log() }
 
-        override fun onError(e: Throwable) {
-          Logger.e("Login Unsuccessful: ${e.message}")
+          }).addTo(compositeDisposable)
         }
+        override fun onError(e: Throwable) { e.log() }
       })
     setupBinding()
     setupObservers()
     mainActivityViewModel.dialog.observe(this) {
       createAlertDialog(it.first, it.second).show()
+    }
+  }
+//TODO Remove the boilerplate from singles and observables
+
+  private fun getTimes(): Single<Map<SOURCE, Long>> {
+    Logger.d("getting times")
+    return Single.zip(getLocalUpdatedLast().subscribeOn(Schedulers.io()), getRemoteUpdatedLast().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())) { local, remote ->
+//      compareTimes(mapOf(SOURCE.LOCAL to local, SOURCE.REMOTE to remote))
+//      Logger.d("Got Times")
+      mapOf(SOURCE.LOCAL to local, SOURCE.REMOTE to remote)
+    }
+  }
+
+  private fun compareTimes(map: Map<SOURCE, Long>) {
+    if ((map[SOURCE.LOCAL] == 0L) && (map[SOURCE.REMOTE] == 0L)) {
+      Logger.d("Both times are 0")
+      decksAreNew()
+    }
+    else if (map[SOURCE.LOCAL]!! > map[SOURCE.REMOTE]!!) {
+      Logger.d("Local is newer")
+      localOrTie()
+    }
+    else if (map[SOURCE.LOCAL]!! < map[SOURCE.REMOTE]!!) {
+      Logger.d("Remote is newer")
+      remoteDeckIsNew()
+    }
+    else {
+      Logger.d("Decks are tied")
+      localOrTie(true)
+    }
+  }
+
+  private fun decksAreNew() {
+    mainActivityViewModel.beginGame(repo.freshDeckObject())
+  }
+
+  private fun localOrTie(tied: Boolean = false) {
+    valueDao.getAllValues().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribeWith(object : DisposableSingleObserver<List<HumanValue>>(){
+      override fun onSuccess(t: List<HumanValue>) {
+        mainActivityViewModel.beginGame(t)
+        if (!tied) {
+          setRemoteDeck(t)
+        }
+      }
+      override fun onError(e: Throwable) { e.log() }
+    }).addTo(compositeDisposable)
+  }
+
+  private fun remoteDeckIsNew() {
+    firebaseAPI.getMyDeck().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribeWith(object : DisposableSingleObserver<List<HumanValue>>(){
+      override fun onSuccess(t: List<HumanValue>) {
+        setLocalDeck(t)
+        mainActivityViewModel.beginGame(t)
+      }
+
+      override fun onError(e: Throwable) { e.log() }
+    }).addTo(compositeDisposable)
+  }
+
+  private fun setLocalDeck(t: List<HumanValue>) {
+    valueDao.insertAllValues(t).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribeWith(object : DisposableCompletableObserver(){
+      override fun onComplete() { setTimes() }
+      override fun onError(e: Throwable) { e.log() }
+    }).addTo(compositeDisposable)
+  }
+
+  private fun setRemoteDeck(t: List<HumanValue>) {
+    firebaseAPI.mergeMyDeck(t).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribeWith(object : DisposableObserver<Int>(){
+      override fun onComplete() { setTimes() }
+      override fun onNext(t: Int) {
+        Logger.d("Job $t% done")
+      }
+
+      override fun onError(e: Throwable) { e.log() }
+    }).addTo(compositeDisposable)
+  }
+
+  private fun setTimes() {
+    val time = System.currentTimeMillis()
+      val sharedPref = getSharedPreferences(
+        "org.clarkecollective.raderie",
+        Context.MODE_PRIVATE
+      )
+      with(sharedPref.edit()) {
+        putLong(getString(R.string.lastUpdated), time)
+        apply()
+        Logger.d("Local time set to $time")
+      }
+    firebaseAPI.setLastUpdated(time).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribeWith(object : DisposableCompletableObserver(){
+      override fun onComplete() { Logger.d("Remote time set to $time") }
+      override fun onError(e: Throwable) { e.log() }
+
+    }).addTo(compositeDisposable)
+  }
+
+  private fun getRemoteUpdatedLast(): Single<Long> {
+    return Single.create {
+      firebaseAPI.getLastUpdated().subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribeWith(object :
+        DisposableSingleObserver<Long>() {
+        override fun onSuccess(t: Long) { it.onSuccess(t) }
+        override fun onError(e: Throwable) {
+          if ((e.message == getString(R.string.no_user_error))) {
+            firebaseAPI.createUser().subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribeWith(object :
+              DisposableCompletableObserver() {
+              override fun onComplete() { it.onSuccess(0L) }
+              override fun onError(e: Throwable) { e.log() }
+            }).addTo(compositeDisposable)
+          }
+          else if (e.message == getString(R.string.no_last_updated_error)) {
+            firebaseAPI.updateTimestamp(0L).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribeWith(object : DisposableCompletableObserver(){
+              override fun onComplete() { it.onSuccess(0L) }
+              override fun onError(e: Throwable) { e.log() }
+
+            }).addTo(compositeDisposable)
+          }
+          else { e.log() }
+        }
+      }).addTo(compositeDisposable)
+    }
+  }
+
+  private fun getLocalUpdatedLast(): Single<Long> {
+    return Single.create {
+      val sharedPref = getSharedPreferences(
+        "org.clarkecollective.raderie",
+        Context.MODE_PRIVATE
+      )
+      val lastUpdatedLocal =
+        sharedPref.getLong(getString(R.string.lastUpdated), 0L)
+      it.onSuccess(lastUpdatedLocal)
     }
   }
 
@@ -103,7 +243,6 @@ class MainActivity : AppCompatActivity() {
         startSharingActivity()
         true
       }
-
       else -> super.onOptionsItemSelected(item)
     }
   }
@@ -115,6 +254,7 @@ class MainActivity : AppCompatActivity() {
 
   private fun startResultsActivity() {
     val arrayDeck = mainActivityViewModel.deck.value?.let { ArrayList<HumanValue>(it) }
+    Logger.d(arrayDeck)
     val intent = arrayDeck?.let { ResultsActivity.newIntent(this, it) }
     startActivity(intent)
   }
@@ -130,7 +270,7 @@ class MainActivity : AppCompatActivity() {
       } else {
         Toast.makeText(applicationContext, "Deleted: " + hv2.name, Toast.LENGTH_SHORT).show()
       }
-      mainActivityViewModel.pullTwo()
+      mainActivityViewModel.pullTwoLessRandomly()
     }
     dialog.setButton(AlertDialog.BUTTON_NEGATIVE, hv2!!.name) { _, _ ->
       val success = mainActivityViewModel.removeFromDeck(hv1)
@@ -139,7 +279,7 @@ class MainActivity : AppCompatActivity() {
       } else {
         Toast.makeText(applicationContext, "Deleted: " + hv1.name, Toast.LENGTH_SHORT).show()
       }
-      mainActivityViewModel.pullTwo()
+      mainActivityViewModel.pullTwoLessRandomly()
     }
     dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Cancel") { d, _ ->
       d.cancel()
